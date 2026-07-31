@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PlayerColor {
+  BLUE
+  RED
+  GREEN
+  YELLOW
+}
+
+enum TileType {
+  START
+  FREE
+  INFORMATIVE
+  QUESTION
+  LOSE_TURN
+  REPEAT_TURN
+  GOAL
+}
+
+enum GameStatus {
+  CREATED
+  RUNNING
+  PAUSED
+  FINISHED
+  ABORTED
+}
+
+enum AudioRelationType {
+  QUESTION
+  INFORMATIVE_TILE
+  GENERAL
+}
+
+enum DeviceKind {
+  ESP32
+  ARDUINO_NANO
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GameSession {
+  id                    String        @id @default(uuid())
+  publicId              String        @unique
+  status                GameStatus    @default(CREATED)
+  startedAt             DateTime?
+  finishedAt            DateTime?
+  durationSeconds       Int           @default(0)
+  winnerColor           PlayerColor?
+  bestEducationalColor  PlayerColor?
+  bestEducationalScore  Int           @default(0)
+  correctAnswers        Int           @default(0)
+  incorrectAnswers      Int           @default(0)
+  totalQuestions        Int           @default(0)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  players               GamePlayer[]
+  movements             MoveHistory[]
+  answers               AnswerHistory[]
+  finalReport           FinalReport?
+}
+
+model GamePlayer {
+  id               String       @id @default(uuid())
+  gameId           String
+  color            PlayerColor
+  name             String
+  currentTile      Int          @default(0)
+  routeScore       Int          @default(0)
+  educationalScore Int          @default(0)
+  isWinner         Boolean      @default(false)
+  game             GameSession  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  movements        MoveHistory[]
+  answers          AnswerHistory[]
+
+  @@unique([gameId, color])
+}
+
+model BoardTile {
+  id          String       @id @default(uuid())
+  index       Int          @unique
+  type        TileType
+  description String?
+  questionId  String?
+  audioId     String?
+  question    Question?    @relation(fields: [questionId], references: [id])
+  audio       AudioAsset?  @relation(fields: [audioId], references: [id])
+}
+
+model Question {
+  id             String          @id @default(uuid())
+  title          String
+  text           String
+  optionA        String
+  optionB        String
+  correctOption  String
+  topic          String
+  status         Boolean         @default(true)
+  audioId        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  audio          AudioAsset?     @relation(fields: [audioId], references: [id])
+  answers        AnswerHistory[]
+  tiles          BoardTile[]
+}
+
+model AudioAsset {
+  id              String             @id @default(uuid())
+  name            String
+  filename        String
+  path            String
+  mimeType        String             @default("audio/mpeg")
+  relationType    AudioRelationType  @default(GENERAL)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  questions       Question[]
+  tiles           BoardTile[]
+}
+
+model MoveHistory {
+  id              String       @id @default(uuid())
+  gameId          String
+  playerId        String?
+  turnNumber      Int
+  color           PlayerColor
+  diceValue       Int?
+  fromTile        Int?
+  toTile          Int?
+  tileType        TileType?
+  questionText    String?
+  selectedAnswer  String?
+  isCorrect       Boolean?
+  educationalScore Int        @default(0)
+  eventName       String
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+  game            GameSession @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player          GamePlayer? @relation(fields: [playerId], references: [id])
+}
+
+model AnswerHistory {
+  id             String       @id @default(uuid())
+  gameId         String
+  playerId       String?
+  questionId     String?
+  selectedOption String
+  isCorrect      Boolean
+  createdAt      DateTime     @default(now())
+  game           GameSession  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player         GamePlayer?  @relation(fields: [playerId], references: [id])
+  question       Question?    @relation(fields: [questionId], references: [id])
+}
+
+model DeviceStatus {
+  id              String     @id @default(uuid())
+  kind            DeviceKind @unique
+  name            String
+  connected       Boolean    @default(false)
+  ipAddress       String?
+  port            Int?
+  firmwareVersion String?
+  lastSeenAt      DateTime?
+  health          Json?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model ButtonEvent {
+  id          String     @id @default(uuid())
+  gameId      String?
+  button      String
+  pressed     Boolean
+  source      DeviceKind @default(ARDUINO_NANO)
+  createdAt   DateTime   @default(now())
+}
+
+model SystemConfig {
+  id             String   @id @default(uuid())
+  projectName    String   @default("Parchis Inclusivo Multisensorial")
+  logoUrl        String?
+  playerCount    Int      @default(4)
+  tileCount      Int      @default(28)
+  timeoutSeconds Int      @default(20)
+  volume         Int      @default(70)
+  esp32Ip        String?
+  websocketPort  Int      @default(4000)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model FinalReport {
+  id                    String       @id @default(uuid())
+  gameId                String       @unique
+  winnerColor           PlayerColor?
+  bestEducationalColor  PlayerColor?
+  totalQuestions        Int
+  correctAnswers        Int
+  incorrectAnswers      Int
+  durationSeconds       Int
+  summary               Json
+  createdAt             DateTime     @default(now())
+  game                  GameSession  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+}

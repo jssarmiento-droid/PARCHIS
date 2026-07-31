@@ -1,0 +1,198 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #eef3f8;
+  color: #172033;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-sider {
+  background: linear-gradient(180deg, #111827 0%, #0f2a3d 100%) !important;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 78px;
+  padding: 0 22px;
+  color: white;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.brand .anticon {
+  font-size: 32px;
+  color: #6ee7b7;
+}
+
+.brand-title {
+  display: block;
+  color: white !important;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.brand-subtitle {
+  display: block;
+  color: rgb(255 255 255 / 70%) !important;
+  font-size: 12px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  background: rgb(255 255 255 / 82%);
+  border-bottom: 1px solid #dbe4ee;
+  backdrop-filter: blur(10px);
+}
+
+.app-content {
+  padding: 28px;
+}
+
+.page-title {
+  margin-bottom: 4px;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-title .ant-typography {
+  margin-bottom: 4px !important;
+}
+
+.metric-card {
+  min-height: 118px;
+  border: 1px solid #e3ebf5;
+  box-shadow: 0 12px 30px rgb(24 39 75 / 5%);
+}
+
+.toolbar {
+  margin-bottom: 16px;
+}
+
+.board-card .ant-card-body {
+  overflow-x: auto;
+}
+
+.board-map {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(112px, 1fr));
+  gap: 10px;
+  min-width: 820px;
+}
+
+.board-tile {
+  min-height: 96px;
+  padding: 10px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgb(24 39 75 / 5%);
+}
+
+.board-tile.active {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 3px rgb(22 119 255 / 15%);
+}
+
+.player-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.player-dot {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+}
+
+.player-blue { background: #1677ff; }
+.player-red { background: #f5222d; }
+.player-green { background: #52c41a; }
+.player-yellow { background: #fadb14; }
+
+.iot-panel {
+  background: linear-gradient(135deg, #102a43, #0e7490);
+  color: white;
+  border: 0;
+}
+
+.iot-panel .ant-card-body {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.iot-panel .anticon {
+  font-size: 40px;
+  color: #a7f3d0;
+}
+
+.iot-panel .ant-typography {
+  color: white;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgb(22 119 255 / 25%), transparent 30%),
+    radial-gradient(circle at bottom right, rgb(16 185 129 / 20%), transparent 34%),
+    #eef3f8;
+}
+
+.login-card {
+  width: min(440px, 100%);
+  border: 1px solid #dbe4ee;
+  box-shadow: 0 28px 70px rgb(24 39 75 / 14%);
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    display: block;
+  }
+
+  .app-sider {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .app-header {
+    height: auto;
+    min-height: 72px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+  }
+
+  .app-content {
+    padding: 18px;
+  }
+}
