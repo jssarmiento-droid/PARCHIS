@@ -6,10 +6,13 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
-  const frontendUrl = config.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  const frontendUrls = (config.get<string>('FRONTEND_URL') || 'http://localhost:5173')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
 
   app.enableCors({
-    origin: frontendUrl,
+    origin: frontendUrls,
     credentials: true,
   });
   app.setGlobalPrefix('api/v1');
