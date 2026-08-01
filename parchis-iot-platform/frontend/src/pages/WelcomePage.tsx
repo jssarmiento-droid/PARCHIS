@@ -70,9 +70,9 @@ export function WelcomePage() {
         <div className="welcome-board-visual" aria-label="Resumen visual del tablero inclusivo">
           <div className="welcome-board-meta"><span><ApiOutlined /> 28 casillas sensorizadas</span><span><SoundOutlined /> Guia por audio</span></div>
           <div className="welcome-board-surface">
-            <div className="welcome-route route-top">{Array.from({ length: 6 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-route route-top">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
             <div className="welcome-route route-right">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
-            <div className="welcome-route route-bottom">{Array.from({ length: 6 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-route route-bottom">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
             <div className="welcome-route route-left">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
             <div className="welcome-board-core"><ExperimentOutlined /><strong>Parchis<br />inclusivo</strong></div>
             <span className="route-piece piece-blue" /><span className="route-piece piece-red" /><span className="route-piece piece-green" /><span className="route-piece piece-yellow" />
