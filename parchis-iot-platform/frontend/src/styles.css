@@ -269,6 +269,99 @@ body {
   background-size: 34px 34px;
 }
 
+.welcome-page {
+  min-height: 100vh;
+  padding: 0 clamp(20px, 6vw, 96px) 38px;
+  overflow: hidden;
+  background: #f7f8ef;
+}
+
+.welcome-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 82px;
+  border-bottom: 1px solid #dde7d8;
+}
+
+.welcome-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  color: #17251a;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.welcome-brand-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: #fff;
+  border-radius: 50%;
+  background: var(--color-brand);
+}
+
+.welcome-brand strong,
+.welcome-brand small {
+  display: block;
+  line-height: 1.02;
+}
+
+.welcome-brand strong { font-size: 17px; text-transform: uppercase; }
+.welcome-brand small { margin-top: 3px; color: var(--color-brand-strong); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.welcome-nav { display: flex; align-items: center; gap: 24px; }
+.welcome-nav a { color: #445346; font-size: 13px; font-weight: 650; text-decoration: none; }
+.welcome-nav a:hover { color: var(--color-brand-strong); }
+
+.welcome-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(410px, .92fr);
+  align-items: center;
+  min-height: min(610px, calc(100vh - 160px));
+  gap: clamp(42px, 7vw, 120px);
+}
+
+.welcome-copy { max-width: 590px; }
+.welcome-eyebrow { display: inline-block; margin-bottom: 18px; padding: 6px 11px; color: #2c6e32; border: 1px solid #c7dfbf; border-radius: 999px; background: #eef7e9; font-size: 12px; font-weight: 700; }
+.welcome-copy h1.ant-typography { margin: 0 0 18px; color: #122117; font-size: clamp(40px, 4.1vw, 62px); font-weight: 800; line-height: 1.08; }
+.welcome-copy h1 span { color: var(--color-brand-strong); }
+.welcome-copy .ant-typography { max-width: 535px; color: #536056; font-size: 16px; line-height: 1.7; }
+.welcome-copy .ant-btn { height: 44px; margin-top: 8px; padding-inline: 18px; }
+
+.welcome-board-wrap { display: grid; min-height: 420px; place-items: center; }
+.welcome-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 58px);
+  grid-template-rows: repeat(5, 58px);
+  gap: 4px;
+  padding: 15px;
+  border: 12px solid #273b2d;
+  border-radius: 10px;
+  background: #c9b486;
+  box-shadow: 15px 18px 0 rgb(25 52 31 / 16%), 0 24px 42px rgb(29 55 31 / 22%);
+  transform: rotate(-8deg);
+}
+
+.welcome-cell { display: grid; place-items: center; color: #4d4a36; border: 1px solid rgb(75 73 51 / 24%); border-radius: 3px; background: #eadbb4; font-size: 10px; font-weight: 800; }
+.welcome-cell:nth-child(3n) { background: #d4e7bf; }
+.welcome-cell:nth-child(4n) { background: #efd1ca; }
+.welcome-cell:nth-child(5n) { background: #c7ddee; }
+.welcome-center { position: absolute; inset: 82px; display: grid; place-content: center; gap: 6px; color: #fff; border: 5px solid #f4edcd; border-radius: 50%; background: var(--color-brand); box-shadow: inset 0 0 0 6px #236d2b; font-size: 14px; line-height: 1.05; text-align: center; text-transform: uppercase; }
+.welcome-center .anticon { font-size: 26px; }
+.welcome-token { position: absolute; width: 22px; height: 22px; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 3px 5px rgb(0 0 0 / 22%); }
+.token-blue { top: 48px; left: 112px; background: #2089de; }.token-red { top: 162px; right: 40px; background: #d74747; }.token-green { right: 122px; bottom: 42px; background: #42a852; }.token-yellow { bottom: 105px; left: 39px; background: #e7bc32; }
+
+.welcome-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 1120px; margin: 0 auto; }
+.welcome-benefits article { display: flex; gap: 13px; padding: 19px; border-top: 3px solid #c6dfbd; background: #fff; box-shadow: 0 8px 20px rgb(21 37 23 / 6%); }
+.welcome-benefits .anticon { margin-top: 2px; color: var(--color-brand); font-size: 22px; }.welcome-benefits strong,.welcome-benefits span { display: block; }.welcome-benefits strong { margin-bottom: 4px; color: #213225; }.welcome-benefits span { color: #69766a; font-size: 12px; line-height: 1.5; }
+
 .login-card {
   width: min(440px, 100%);
   border: 1px solid var(--color-border);
@@ -345,6 +438,10 @@ body {
 }
 
 @media (max-width: 860px) {
+  .welcome-page { padding-inline: 24px; }
+  .welcome-hero { grid-template-columns: 1fr; min-height: 0; padding: 58px 0; }
+  .welcome-board-wrap { order: -1; min-height: 330px; }
+  .welcome-benefits { grid-template-columns: 1fr; }
   .app-shell {
     display: block;
   }
@@ -391,6 +488,12 @@ body {
 }
 
 @media (max-width: 560px) {
+  .welcome-header { min-height: 70px; }
+  .welcome-nav { gap: 10px; }
+  .welcome-nav a { display: none; }
+  .welcome-board { transform: scale(.78) rotate(-8deg); }
+  .welcome-board-wrap { margin: -38px 0 -28px; }
+  .welcome-copy h1.ant-typography { font-size: 39px; }
   .brand {
     min-height: 70px;
   }
