@@ -13,17 +13,14 @@ class UpdateSettingsDto {
 
   @IsOptional()
   @IsInt()
-  @Min(1)
+  @Min(2)
   @Max(4)
   playerCount?: number;
 
   @IsOptional()
   @IsInt()
-  @Min(28)
-  tileCount?: number;
-
-  @IsOptional()
-  @IsInt()
+  @Min(5)
+  @Max(120)
   timeoutSeconds?: number;
 
   @IsOptional()
@@ -32,13 +29,6 @@ class UpdateSettingsDto {
   @Max(100)
   volume?: number;
 
-  @IsOptional()
-  @IsString()
-  esp32Ip?: string;
-
-  @IsOptional()
-  @IsInt()
-  websocketPort?: number;
 }
 
 @Controller('settings')

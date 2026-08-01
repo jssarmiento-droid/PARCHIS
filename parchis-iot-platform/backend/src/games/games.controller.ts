@@ -1,5 +1,14 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { IsString, MinLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MinLength,
+} from 'class-validator';
 import { GamesService } from './games.service';
 
 class CreateGameDto {
@@ -11,13 +20,23 @@ class CreateGameDto {
   @MinLength(2)
   redPlayer!: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(2)
   greenPlayer!: string;
 
+  @IsOptional()
   @IsString()
   @MinLength(2)
   yellowPlayer!: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(10)
+  @ArrayUnique()
+  @IsUUID('4', { each: true })
+  questionIds?: string[];
 }
 
 @Controller('games')

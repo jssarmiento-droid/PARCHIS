@@ -1,20 +1,22 @@
-import { Alert, Button, Card, Empty, Skeleton } from 'antd';
+import { Alert, Button, Empty, Skeleton } from 'antd';
 import { ReactNode } from 'react';
 
 interface AsyncStateProps {
   loading?: boolean;
+  refreshing?: boolean;
   error?: string | null;
   empty?: boolean;
+  emptyText?: string;
   onRetry?: () => void;
   children: ReactNode;
 }
 
-export function AsyncState({ loading, error, empty, onRetry, children }: AsyncStateProps) {
+export function AsyncState({ loading, error, empty, emptyText = 'Sin datos registrados', onRetry, children }: AsyncStateProps) {
   if (loading) {
     return (
-      <Card>
+      <div className="surface-block">
         <Skeleton active paragraph={{ rows: 5 }} />
-      </Card>
+      </div>
     );
   }
 
@@ -32,9 +34,9 @@ export function AsyncState({ loading, error, empty, onRetry, children }: AsyncSt
 
   if (empty) {
     return (
-      <Card>
-        <Empty description="Sin datos registrados" />
-      </Card>
+      <div className="empty-state">
+        <Empty description={emptyText} />
+      </div>
     );
   }
 

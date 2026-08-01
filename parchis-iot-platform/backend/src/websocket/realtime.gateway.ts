@@ -42,18 +42,34 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   @SubscribeMessage('esp32:system-status')
   async onSystemStatus(@MessageBody() payload: Record<string, unknown>) {
+    return this.ingestSystemStatus(payload);
+  }
+
+  async ingestSystemStatus(payload: Record<string, unknown>) {
     await this.devicesService.updateHealth('ESP32', payload);
-    this.server.emit('device:status', await this.devicesService.getStatus());
+    const status = await this.devicesService.getStatus();
+    this.server.emit('device:status', status);
+    this.server.emit('device:telemetry', payload);
+    return { ok: true, devices: status };
   }
 
   @SubscribeMessage('nano:button-state')
   async onButtonState(@MessageBody() payload: { button: string; pressed: boolean; gameId?: string }) {
+    return this.ingestButtonState(payload);
+  }
+
+  async ingestButtonState(payload: { button: string; pressed: boolean; gameId?: string }) {
     const event = await this.devicesService.recordButtonEvent(payload);
     this.server.emit('nano:button-state', event);
+    return event;
   }
 
   @SubscribeMessage('esp32:game-event')
-  async onGameEvent(@MessageBody() payload: Record<string, any>) {
+  async onGameEvent(@MessageBody() payload: Record<string, unknown>) {
+    return this.ingestGameEvent(payload);
+  }
+
+  async ingestGameEvent(payload: Record<string, unknown>) {
     try {
       const result = await this.gamesService.processDeviceEvent(payload);
       this.server.emit('game:state', result.state);
@@ -61,16 +77,18 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       if (result.finalReport) {
         this.server.emit('game:final-report', result.finalReport);
       }
+      return result;
     } catch (error) {
       this.server.emit('system:error', {
         message: error instanceof Error ? error.message : 'No se pudo procesar el evento del ESP32',
         payload,
       });
+      throw error;
     }
   }
 
   @SubscribeMessage('demo:device-disconnect')
-  async onDemoDisconnect(@MessageBody() payload: { kind: 'ESP32' | 'ARDUINO_NANO' }) {
+  async onDemoDisconnect(@MessageBody() payload: { kind: 'ESP32' | 'ARDUINO_UNO' }) {
     await this.devicesService.markDisconnected(payload.kind);
     this.server.emit('device:status', await this.devicesService.getStatus());
   }
@@ -86,7 +104,9 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   async onFinishGame(@MessageBody() payload: { gameId: string }) {
     const report = await this.gamesService.finishGame(payload.gameId);
     this.server.emit('esp32:finish-game', payload);
+    this.server.emit('game:state', await this.gamesService.findOne(payload.gameId));
     this.server.emit('game:final-report', report);
+    return report;
   }
 
   @SubscribeMessage('web:sync-config')

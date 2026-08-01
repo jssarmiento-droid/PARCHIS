@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { DeviceStatus, GameSession, MoveHistory } from '../types/domain';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { api } from '../services/api';
 import { socket } from '../services/socket';
+import { DeviceStatus, GameSession, MoveHistory, SystemConfig } from '../types/domain';
 
 interface RealtimeState {
   connected: boolean;
@@ -9,6 +10,8 @@ interface RealtimeState {
   movements: MoveHistory[];
   technicalEvents: string[];
   finalReport: unknown | null;
+  systemConfig: SystemConfig | null;
+  refresh: () => Promise<void>;
 }
 
 const RealtimeContext = createContext<RealtimeState>({
@@ -18,6 +21,8 @@ const RealtimeContext = createContext<RealtimeState>({
   movements: [],
   technicalEvents: [],
   finalReport: null,
+  systemConfig: null,
+  refresh: async () => undefined,
 });
 
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
@@ -27,11 +32,34 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const [movements, setMovements] = useState<MoveHistory[]>([]);
   const [technicalEvents, setTechnicalEvents] = useState<string[]>([]);
   const [finalReport, setFinalReport] = useState<unknown | null>(null);
+  const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const [deviceResponse, activeGameResponse, configResponse] = await Promise.all([
+        api.get('/devices/status'),
+        api.get('/games/active'),
+        api.get('/settings'),
+      ]);
+      setDevices(deviceResponse.data || []);
+      setActiveGame(activeGameResponse.data || null);
+      setMovements(activeGameResponse.data?.movements || []);
+      setSystemConfig(configResponse.data || null);
+    } catch {
+      setTechnicalEvents((current) => ['No se pudo sincronizar el estado inicial del sistema', ...current].slice(0, 80));
+    }
+  }, []);
 
   useEffect(() => {
+    refresh().catch(() => undefined);
+    const interval = window.setInterval(() => {
+      refresh().catch(() => undefined);
+    }, 20000);
+
     socket.on('connect', () => setConnected(true));
     socket.on('disconnect', () => setConnected(false));
     socket.on('device:status', setDevices);
+    socket.on('device:telemetry', (event) => setTechnicalEvents((current) => [`Estado ESP32 recibido: ${JSON.stringify(event)}`, ...current].slice(0, 80)));
     socket.on('game:state', setActiveGame);
     socket.on('game:movement', (movement: MoveHistory) => setMovements((current) => [movement, ...current].slice(0, 60)));
     socket.on('nano:button-state', (event) => setTechnicalEvents((current) => [`Botón ${event.button}: ${event.pressed ? 'presionado' : 'liberado'}`, ...current].slice(0, 80)));
@@ -42,17 +70,19 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('device:status');
+      socket.off('device:telemetry');
       socket.off('game:state');
       socket.off('game:movement');
       socket.off('nano:button-state');
       socket.off('system:error');
       socket.off('game:final-report');
+      window.clearInterval(interval);
     };
-  }, []);
+  }, [refresh]);
 
   const value = useMemo(
-    () => ({ connected, devices, activeGame, movements, technicalEvents, finalReport }),
-    [connected, devices, activeGame, movements, technicalEvents, finalReport],
+    () => ({ connected, devices, activeGame, movements, technicalEvents, finalReport, systemConfig, refresh }),
+    [connected, devices, activeGame, movements, technicalEvents, finalReport, systemConfig, refresh],
   );
 
   return <RealtimeContext.Provider value={value}>{children}</RealtimeContext.Provider>;

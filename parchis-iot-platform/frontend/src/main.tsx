@@ -13,9 +13,36 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       locale={esES}
       theme={{
         token: {
-          colorPrimary: '#1677ff',
-          borderRadius: 10,
+          colorPrimary: '#2f8a3a',
+          colorInfo: '#2f8a3a',
+          colorSuccess: '#2f8a3a',
+          colorBgLayout: '#f3f5f7',
+          colorText: '#111827',
+          borderRadius: 4,
           fontFamily: 'Inter, system-ui, Segoe UI, sans-serif',
+        },
+        components: {
+          Card: {
+            borderRadiusLG: 4,
+            paddingLG: 18,
+          },
+          Button: {
+            borderRadius: 4,
+            controlHeight: 34,
+          },
+          Input: {
+            borderRadius: 4,
+            controlHeight: 34,
+          },
+          Select: {
+            borderRadius: 4,
+            controlHeight: 34,
+          },
+          Table: {
+            cellPaddingBlock: 9,
+            cellPaddingInline: 12,
+            headerBg: '#f7f9fb',
+          },
         },
       }}
     >

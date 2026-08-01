@@ -10,6 +10,7 @@ import { AudiosModule } from './audios/audios.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsModule } from './settings/settings.module';
 import { RealtimeModule } from './websocket/realtime.module';
+import { DeviceIngestionModule } from './device-ingestion/device-ingestion.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RealtimeModule } from './websocket/realtime.module';
     ReportsModule,
     SettingsModule,
     RealtimeModule,
+    DeviceIngestionModule,
   ],
 })
 export class AppModule {}

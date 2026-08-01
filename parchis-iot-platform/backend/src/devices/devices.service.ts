@@ -8,6 +8,11 @@ export class DevicesService {
 
   async getStatus() {
     await this.ensureDefaults();
+    const staleBefore = new Date(Date.now() - 30_000);
+    await this.prisma.deviceStatus.updateMany({
+      where: { connected: true, lastSeenAt: { lt: staleBefore } },
+      data: { connected: false },
+    });
     return this.prisma.deviceStatus.findMany({ orderBy: { kind: 'asc' } });
   }
 
@@ -15,7 +20,7 @@ export class DevicesService {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: true, lastSeenAt: new Date(), ...data },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino Nano', connected: true, lastSeenAt: new Date(), ...data },
+      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: true, lastSeenAt: new Date(), ...data },
     });
   }
 
@@ -23,7 +28,7 @@ export class DevicesService {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: false },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino Nano', connected: false },
+      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: false },
     });
   }
 
@@ -32,18 +37,18 @@ export class DevicesService {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: true, health: healthJson, lastSeenAt: new Date() },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino Nano', connected: true, health: healthJson, lastSeenAt: new Date() },
+      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: true, health: healthJson, lastSeenAt: new Date() },
     });
   }
 
   async recordButtonEvent(payload: { button: string; pressed: boolean; gameId?: string }) {
-    await this.updateHealth('ARDUINO_NANO', { lastButton: payload.button, pressed: payload.pressed });
+    await this.updateHealth('ESP32', { lastButton: payload.button, pressed: payload.pressed });
     return this.prisma.buttonEvent.create({
       data: {
         gameId: payload.gameId,
         button: payload.button,
         pressed: payload.pressed,
-        source: 'ARDUINO_NANO',
+        source: 'ESP32',
       },
     });
   }
@@ -56,9 +61,9 @@ export class DevicesService {
         create: { kind: 'ESP32', name: 'ESP32 DevKit V1' },
       }),
       this.prisma.deviceStatus.upsert({
-        where: { kind: 'ARDUINO_NANO' },
+        where: { kind: 'ARDUINO_UNO' },
         update: {},
-        create: { kind: 'ARDUINO_NANO', name: 'Arduino Nano - Panel de botones' },
+        create: { kind: 'ARDUINO_UNO', name: 'Arduino UNO R3 - Sensores Hall' },
       }),
     ]);
   }

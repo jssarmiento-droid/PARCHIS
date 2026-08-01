@@ -19,6 +19,7 @@ enum TileType {
   FREE
   INFORMATIVE
   QUESTION
+  ENTRY
   LOSE_TURN
   REPEAT_TURN
   GOAL
@@ -40,7 +41,15 @@ enum AudioRelationType {
 
 enum DeviceKind {
   ESP32
-  ARDUINO_NANO
+  ARDUINO_UNO
+}
+
+enum QuestionRegion {
+  COSTA
+  SIERRA
+  AMAZONIA
+  GALAPAGOS
+  GENERAL
 }
 
 model AdminUser {
@@ -67,6 +76,7 @@ model GameSession {
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   players               GamePlayer[]
+  selectedQuestions     GameQuestion[]
   movements             MoveHistory[]
   answers               AnswerHistory[]
   finalReport           FinalReport?
@@ -107,6 +117,8 @@ model Question {
   optionB        String
   correctOption  String
   topic          String
+  region         QuestionRegion
+  audioTrack     Int             @unique
   status         Boolean         @default(true)
   audioId        String?
   createdAt      DateTime        @default(now())
@@ -114,6 +126,19 @@ model Question {
   audio          AudioAsset?     @relation(fields: [audioId], references: [id])
   answers        AnswerHistory[]
   tiles          BoardTile[]
+  gameSelections GameQuestion[]
+}
+
+model GameQuestion {
+  id         String      @id @default(uuid())
+  gameId     String
+  questionId String
+  order      Int
+  game       GameSession @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([gameId, questionId])
+  @@unique([gameId, order])
 }
 
 model AudioAsset {
@@ -131,6 +156,7 @@ model AudioAsset {
 
 model MoveHistory {
   id              String       @id @default(uuid())
+  eventId         String?      @unique
   gameId          String
   playerId        String?
   turnNumber      Int
@@ -139,6 +165,7 @@ model MoveHistory {
   fromTile        Int?
   toTile          Int?
   tileType        TileType?
+  questionId      String?
   questionText    String?
   selectedAnswer  String?
   isCorrect       Boolean?
@@ -182,7 +209,7 @@ model ButtonEvent {
   gameId      String?
   button      String
   pressed     Boolean
-  source      DeviceKind @default(ARDUINO_NANO)
+  source      DeviceKind @default(ARDUINO_UNO)
   createdAt   DateTime   @default(now())
 }
 

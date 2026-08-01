@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { QuestionRegion } from '@prisma/client';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { QuestionsService } from './questions.service';
 
 class QuestionDto {
@@ -21,6 +22,14 @@ class QuestionDto {
   @IsString()
   topic!: string;
 
+  @IsEnum(QuestionRegion)
+  region!: QuestionRegion;
+
+  @IsInt()
+  @Min(201)
+  @Max(210)
+  audioTrack!: number;
+
   @IsOptional()
   @IsString()
   audioId?: string;
@@ -35,8 +44,8 @@ export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Get()
-  findAll(@Query('search') search?: string, @Query('topic') topic?: string) {
-    return this.questionsService.findAll({ search, topic });
+  findAll(@Query('search') search?: string, @Query('topic') topic?: string, @Query('region') region?: QuestionRegion) {
+    return this.questionsService.findAll({ search, topic, region });
   }
 
   @Post()

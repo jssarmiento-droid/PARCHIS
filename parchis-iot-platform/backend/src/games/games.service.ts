@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { FinalReport, GameStatus, PlayerColor, TileType } from '@prisma/client';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { FinalReport, PlayerColor, Prisma, TileType } from '@prisma/client';
 import { PrismaService } from '../common/prisma.service';
 
 type CreateGamePayload = {
   bluePlayer: string;
   redPlayer: string;
-  greenPlayer: string;
-  yellowPlayer: string;
+  greenPlayer?: string;
+  yellowPlayer?: string;
+  questionIds?: string[];
 };
 
 @Injectable()
@@ -16,14 +17,20 @@ export class GamesService {
   async findAll() {
     return this.prisma.gameSession.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { players: true, finalReport: true },
+      include: { players: true, selectedQuestions: { include: { question: true }, orderBy: { order: 'asc' } }, finalReport: true },
     });
   }
 
   async findOne(id: string) {
     const game = await this.prisma.gameSession.findUnique({
       where: { id },
-      include: { players: true, movements: { orderBy: { createdAt: 'desc' } }, answers: true, finalReport: true },
+      include: {
+        players: true,
+        selectedQuestions: { include: { question: { include: { audio: true } } }, orderBy: { order: 'asc' } },
+        movements: { orderBy: { createdAt: 'desc' } },
+        answers: true,
+        finalReport: true,
+      },
     });
     if (!game) throw new NotFoundException('Partida no encontrada');
     return game;
@@ -33,29 +40,69 @@ export class GamesService {
     return this.prisma.gameSession.findFirst({
       where: { status: { in: ['CREATED', 'RUNNING', 'PAUSED'] } },
       orderBy: { createdAt: 'desc' },
-      include: { players: true, movements: { orderBy: { createdAt: 'desc' }, take: 20 } },
+      include: {
+        players: true,
+        selectedQuestions: { include: { question: { include: { audio: true } } }, orderBy: { order: 'asc' } },
+        movements: { orderBy: { createdAt: 'desc' }, take: 20 },
+      },
     });
   }
 
   async create(payload: CreateGamePayload) {
+    if (!payload.questionIds?.length) {
+      throw new BadRequestException('Selecciona al menos una pregunta para la partida');
+    }
+
+    const activeGame = await this.prisma.gameSession.findFirst({
+      where: { status: { in: ['CREATED', 'RUNNING', 'PAUSED'] } },
+      select: { publicId: true },
+    });
+    if (activeGame) {
+      throw new ConflictException(`Ya existe una partida activa: ${activeGame.publicId}`);
+    }
+
+    const activeQuestionCount = await this.prisma.question.count({
+      where: { id: { in: payload.questionIds }, status: true },
+    });
+    if (activeQuestionCount !== payload.questionIds.length) {
+      throw new BadRequestException('Una o más preguntas seleccionadas no existen o están inactivas');
+    }
+
     const publicId = await this.nextPublicId();
+    const players = [
+      { color: 'BLUE' as const, name: payload.bluePlayer, currentTile: 4 },
+      { color: 'RED' as const, name: payload.redPlayer, currentTile: 9 },
+      ...(payload.greenPlayer ? [{ color: 'GREEN' as const, name: payload.greenPlayer, currentTile: 14 }] : []),
+      ...(payload.yellowPlayer ? [{ color: 'YELLOW' as const, name: payload.yellowPlayer, currentTile: 19 }] : []),
+    ];
+    const systemConfig = await this.prisma.systemConfig.findFirst();
+    const maxPlayers = systemConfig?.playerCount || 4;
+    if (players.length > maxPlayers) {
+      throw new BadRequestException(`La configuración permite un máximo de ${maxPlayers} jugadores`);
+    }
+
     return this.prisma.gameSession.create({
       data: {
         publicId,
-        players: {
-          create: [
-            { color: 'BLUE', name: payload.bluePlayer },
-            { color: 'RED', name: payload.redPlayer },
-            { color: 'GREEN', name: payload.greenPlayer },
-            { color: 'YELLOW', name: payload.yellowPlayer },
-          ],
+        players: { create: players },
+        selectedQuestions: {
+          create: payload.questionIds.map((questionId, index) => ({
+            order: index + 1,
+            question: { connect: { id: questionId } },
+          })),
         },
       },
-      include: { players: true },
+      include: { players: true, selectedQuestions: { include: { question: true }, orderBy: { order: 'asc' } } },
     });
   }
 
   async startGame(id: string) {
+    const current = await this.prisma.gameSession.findUnique({ where: { id } });
+    if (!current) throw new NotFoundException('Partida no encontrada');
+    if (current.status === 'RUNNING') return this.findOne(id);
+    if (current.status !== 'CREATED' && current.status !== 'PAUSED') {
+      throw new ConflictException('La partida ya fue finalizada o cancelada');
+    }
     return this.prisma.gameSession.update({
       where: { id },
       data: { status: 'RUNNING', startedAt: new Date() },
@@ -65,6 +112,7 @@ export class GamesService {
 
   async finishGame(id: string) {
     const game = await this.findOne(id);
+    if (game.status === 'FINISHED' && game.finalReport) return game.finalReport;
     const finishedAt = new Date();
     const startedAt = game.startedAt || game.createdAt;
     const durationSeconds = Math.max(0, Math.round((finishedAt.getTime() - startedAt.getTime()) / 1000));
@@ -115,26 +163,44 @@ export class GamesService {
     });
   }
 
-  async processDeviceEvent(payload: Record<string, any>) {
-    const game = await this.getActiveGame();
+  async processDeviceEvent(payload: Record<string, unknown>) {
+    const eventId = this.eventId(payload);
+    if (eventId) {
+      const existing = await this.prisma.moveHistory.findUnique({ where: { eventId } });
+      if (existing) {
+        const state = await this.findOne(existing.gameId);
+        return { state, movement: existing, finalReport: state.finalReport };
+      }
+    }
+
+    const game = payload.gameId ? await this.findOne(String(payload.gameId)) : await this.getActiveGame();
     if (!game) throw new NotFoundException('No existe partida activa');
 
-    const color = this.normalizeColor(payload.color);
+    const color = this.normalizeColor(typeof payload.color === 'string' ? payload.color : undefined);
     const player = game.players.find((item) => item.color === color);
     const diceValue = Number(payload.diceValue || payload.dice || 0) || null;
-    const tileType = this.normalizeTileType(payload.tileType);
+    const tileType = this.normalizeTileType(typeof payload.tileType === 'string' ? payload.tileType : undefined);
     const isCorrect = typeof payload.isCorrect === 'boolean' ? payload.isCorrect : undefined;
+    const eventName = String(payload.eventName || 'esp32:game-event');
+    if (eventName === 'game_started' && game.status === 'CREATED') {
+      await this.prisma.gameSession.update({
+        where: { id: game.id },
+        data: { status: 'RUNNING', startedAt: new Date() },
+      });
+    }
+    const isAnswerEvent = typeof isCorrect === 'boolean'
+      && (Boolean(payload.questionId) || ['answer', 'response', 'question_answered'].includes(eventName));
 
-    let educationalScore = player?.educationalScore || 0;
-    let toTile = Number(payload.currentTile || payload.toTile || player?.currentTile || 0);
+    const reportedScore = Number(payload.educationalScore);
+    const educationalScore = Number.isFinite(reportedScore) && reportedScore >= 0
+      ? reportedScore
+      : player?.educationalScore || 0;
+    const reportedTile = Number(payload.currentTile ?? payload.toTile);
+    let toTile = Number.isFinite(reportedTile) && reportedTile >= 0
+      ? reportedTile
+      : player?.currentTile || 0;
 
-    if (player && typeof isCorrect === 'boolean') {
-      if (isCorrect) {
-        educationalScore += 1;
-        toTile = Math.min(28, toTile + 1);
-      } else {
-        toTile = Math.max(0, toTile - 1);
-      }
+    if (player && (typeof payload.currentTile !== 'undefined' || typeof payload.toTile !== 'undefined' || typeof payload.educationalScore !== 'undefined')) {
       await this.prisma.gamePlayer.update({
         where: { id: player.id },
         data: { educationalScore, currentTile: toTile },
@@ -143,6 +209,7 @@ export class GamesService {
 
     const movement = await this.prisma.moveHistory.create({
       data: {
+        eventId,
         gameId: game.id,
         playerId: player?.id,
         turnNumber: Number(payload.turnNumber || payload.turn || 1),
@@ -151,16 +218,28 @@ export class GamesService {
         fromTile: Number(payload.fromTile || player?.currentTile || 0),
         toTile,
         tileType,
-        questionText: payload.questionText,
-        selectedAnswer: payload.selectedAnswer,
+        questionId: payload.questionId ? String(payload.questionId) : undefined,
+        questionText: payload.questionText ? String(payload.questionText) : undefined,
+        selectedAnswer: payload.selectedAnswer ? String(payload.selectedAnswer) : undefined,
         isCorrect,
         educationalScore,
-        eventName: String(payload.eventName || 'esp32:game-event'),
-        metadata: payload,
+        eventName,
+        metadata: payload as Prisma.InputJsonObject,
       },
     });
 
-    if (typeof isCorrect === 'boolean') {
+    if (isAnswerEvent) {
+      if (payload.selectedAnswer || payload.answer) {
+        await this.prisma.answerHistory.create({
+          data: {
+            gameId: game.id,
+            playerId: player?.id,
+            questionId: payload.questionId ? String(payload.questionId) : undefined,
+            selectedOption: String(payload.selectedAnswer || payload.answer),
+            isCorrect: Boolean(isCorrect),
+          },
+        });
+      }
       await this.prisma.gameSession.update({
         where: { id: game.id },
         data: {
@@ -172,7 +251,7 @@ export class GamesService {
     }
 
     let finalReport: FinalReport | null = null;
-    if (payload.eventName === 'game_finished' || payload.eventName === 'winner') {
+    if (eventName === 'game_finished' || eventName === 'winner') {
       if (player) await this.prisma.gamePlayer.update({ where: { id: player.id }, data: { isWinner: true } });
       finalReport = await this.finishGame(game.id);
     }
@@ -196,7 +275,13 @@ export class GamesService {
 
   private normalizeTileType(value: string | undefined): TileType {
     const type = String(value || 'FREE').toUpperCase();
-    if (['START', 'FREE', 'INFORMATIVE', 'QUESTION', 'LOSE_TURN', 'REPEAT_TURN', 'GOAL'].includes(type)) return type as TileType;
+    if (['START', 'FREE', 'INFORMATIVE', 'QUESTION', 'ENTRY', 'LOSE_TURN', 'REPEAT_TURN', 'GOAL'].includes(type)) return type as TileType;
     return 'FREE';
+  }
+
+  private eventId(payload: Record<string, unknown>) {
+    if (typeof payload.eventId !== 'string') return undefined;
+    const eventId = payload.eventId.trim();
+    return eventId.length > 0 && eventId.length <= 120 ? eventId : undefined;
   }
 }

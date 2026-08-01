@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, QuestionRegion } from '@prisma/client';
 import { PrismaService } from '../common/prisma.service';
 
 @Injectable()
 export class QuestionsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(filters: { search?: string; topic?: string }) {
+  findAll(filters: { search?: string; topic?: string; region?: QuestionRegion }) {
     const where: Prisma.QuestionWhereInput = {
       topic: filters.topic || undefined,
+      region: filters.region || undefined,
       OR: filters.search
         ? [
             { title: { contains: filters.search, mode: 'insensitive' } },
