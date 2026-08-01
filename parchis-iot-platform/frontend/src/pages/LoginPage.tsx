@@ -1,5 +1,6 @@
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ExperimentOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input, Typography, message } from 'antd';
+import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -15,7 +16,11 @@ export function LoginPage() {
       localStorage.setItem('accessToken', data.accessToken);
       message.success('Sesión iniciada correctamente');
       navigate('/dashboard');
-    } catch {
+    } catch (error) {
+      if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+        message.error('No fue posible conectar con el servidor. Espera un momento y vuelve a intentarlo.');
+        return;
+      }
       message.error('Usuario o contraseña incorrectos');
     } finally {
       setSubmitting(false);
@@ -25,6 +30,10 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <Card className="login-card">
+        <button className="login-back" type="button" onClick={() => navigate('/')}>
+          <ArrowLeftOutlined /> Volver al inicio
+        </button>
+        <div className="login-brand"><ExperimentOutlined /><span>Parchis Educativo</span></div>
         <Typography.Title level={2}>Parchís Inclusivo</Typography.Title>
         <Typography.Paragraph>Acceso del administrador del sistema IoT</Typography.Paragraph>
         <Form layout="vertical" onFinish={handleLogin} initialValues={{ username: 'admin', password: 'admin123' }}>
