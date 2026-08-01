@@ -28,13 +28,21 @@ export class AuthService {
   private async ensureAdminSeed() {
     const username = this.config.get<string>('ADMIN_USER') || 'admin';
     const password = this.config.get<string>('ADMIN_PASSWORD') || 'admin123';
-    const exists = await this.prisma.adminUser.findUnique({ where: { username } });
-    if (!exists) {
+    const existing = await this.prisma.adminUser.findUnique({ where: { username } });
+    if (!existing) {
       await this.prisma.adminUser.create({
         data: {
           username,
           passwordHash: await bcrypt.hash(password, 10),
         },
+      });
+      return;
+    }
+
+    if (!(await bcrypt.compare(password, existing.passwordHash))) {
+      await this.prisma.adminUser.update({
+        where: { id: existing.id },
+        data: { passwordHash: await bcrypt.hash(password, 10) },
       });
     }
   }
