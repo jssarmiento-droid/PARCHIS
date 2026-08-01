@@ -10,9 +10,8 @@ import {
   SafetyCertificateOutlined,
   SoundOutlined,
 } from '@ant-design/icons';
-import { Button, Tag, Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import parchisHero from '../assets/parchis-hero.png';
 
 const steps = [
   { icon: <PlayCircleOutlined />, title: 'Inicia la partida', text: 'El tablero verifica el sistema y prepara a los jugadores.' },
@@ -68,14 +67,18 @@ export function WelcomePage() {
           </div>
         </div>
 
-        <figure className="welcome-visual">
-          <img src={parchisHero} alt="Tablero fisico de Parchis inclusivo con fichas, botones y referencias agricolas" />
-          <figcaption>
-            <Tag icon={<ApiOutlined />} color="green">Conexion IoT</Tag>
-            <Tag icon={<SoundOutlined />}>Guia por audio</Tag>
-            <Tag icon={<EyeOutlined />} color="gold">Diseno accesible</Tag>
-          </figcaption>
-        </figure>
+        <div className="welcome-board-visual" aria-label="Resumen visual del tablero inclusivo">
+          <div className="welcome-board-meta"><span><ApiOutlined /> 28 casillas sensorizadas</span><span><SoundOutlined /> Guia por audio</span></div>
+          <div className="welcome-board-surface">
+            <div className="welcome-route route-top">{Array.from({ length: 6 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-route route-right">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-route route-bottom">{Array.from({ length: 6 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-route route-left">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
+            <div className="welcome-board-core"><ExperimentOutlined /><strong>Parchis<br />inclusivo</strong></div>
+            <span className="route-piece piece-blue" /><span className="route-piece piece-red" /><span className="route-piece piece-green" /><span className="route-piece piece-yellow" />
+          </div>
+          <div className="welcome-board-controls"><span>Encendido</span><span>Dado</span><span>A</span><span>B</span><span>Repetir</span><span>Confirmar</span></div>
+        </div>
       </section>
 
       <section className="welcome-benefits" aria-label="Principios del proyecto">

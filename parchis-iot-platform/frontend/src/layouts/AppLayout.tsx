@@ -5,13 +5,15 @@ import {
   DatabaseOutlined,
   FileTextOutlined,
   HistoryOutlined,
+  LogoutOutlined,
   PlusCircleOutlined,
   QuestionCircleOutlined,
   SettingOutlined,
   SoundOutlined,
   ToolOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
-import { Badge, Layout, Menu, Space, Tag, Typography } from 'antd';
+import { Avatar, Badge, Dropdown, Layout, Menu, Space, Tag, Typography, message } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useRealtime } from '../hooks/useRealtime';
 import { useCurrentTime } from '../hooks/useCurrentTime';
@@ -36,6 +38,13 @@ export function AppLayout() {
   const { connected, devices, systemConfig } = useRealtime();
   const currentTime = useCurrentTime();
   const esp32 = devices.find((device) => device.kind === 'ESP32');
+  const adminName = 'Administrador';
+
+  function closeSession() {
+    localStorage.removeItem('accessToken');
+    message.success('Sesion cerrada');
+    navigate('/login', { replace: true });
+  }
 
   return (
     <Layout className="app-shell">
@@ -57,9 +66,21 @@ export function AppLayout() {
             <Badge status={connected ? 'success' : 'error'} text={connected ? 'Servidor conectado' : 'Servidor desconectado'} />
             <Tag color={esp32?.connected ? 'green' : 'red'}>{esp32?.connected ? 'ESP32 conectado' : 'ESP32 desconectado'}</Tag>
           </Space>
-          <Space>
+          <Space size="middle">
             <FileTextOutlined />
             <Typography.Text strong>{currentTime.toLocaleString('es-EC')}</Typography.Text>
+            <Dropdown
+              menu={{
+                items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Cerrar sesion', danger: true }],
+                onClick: ({ key }) => key === 'logout' && closeSession(),
+              }}
+              trigger={['click']}
+            >
+              <button className="account-menu" type="button" aria-label="Menu del administrador">
+                <Avatar size={30} icon={<UserOutlined />} />
+                <span>{adminName}</span>
+              </button>
+            </Dropdown>
           </Space>
         </Header>
         <Content className="app-content">
