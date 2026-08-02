@@ -35,6 +35,16 @@ const regions: Array<{ key: QuestionRegion; label: string }> = [
   { key: 'GENERAL', label: 'General' },
 ];
 
+function normalizeQuestionText(text: string) {
+  return text
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 export function NewGamePage() {
   const { message } = AntdApp.useApp();
   const navigate = useNavigate();
@@ -45,10 +55,21 @@ export function NewGamePage() {
     async () => (await api.get('/questions')).data,
     [],
   );
-  const activeQuestions = useMemo(
-    () => (questionData || []).filter((question) => question.status),
-    [questionData],
-  );
+  const activeQuestions = useMemo(() => {
+    const usedTexts = new Set<string>();
+    const usedTracks = new Set<number>();
+
+    return (questionData || [])
+      .filter((question) => question.status && question.audioTrack >= 201 && question.audioTrack <= 210)
+      .sort((first, second) => first.audioTrack - second.audioTrack)
+      .filter((question) => {
+        const textKey = normalizeQuestionText(question.text);
+        if (usedTexts.has(textKey) || usedTracks.has(question.audioTrack)) return false;
+        usedTexts.add(textKey);
+        usedTracks.add(question.audioTrack);
+        return true;
+      });
+  }, [questionData]);
   const allowedPlayers = players.slice(0, Math.min(Math.max(systemConfig?.playerCount || 4, 2), 4));
 
   function toggleQuestion(id: string, checked: boolean) {
