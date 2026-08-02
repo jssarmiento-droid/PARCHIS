@@ -5,6 +5,16 @@ import { PrismaService } from '../common/prisma.service';
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private normalizeQuestionText(text: string) {
+    return text
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, ' ');
+  }
+
   async getReports() {
     const [games, correctAnswers, incorrectAnswers, movements, questions] = await Promise.all([
       this.prisma.gameSession.findMany({ include: { players: true } }),
@@ -34,15 +44,48 @@ export class ReportsService {
         }, {}),
     ).sort((a, b) => b.errors - a.errors);
 
-    const lowestAccuracyQuestions = questions
-      .map((question) => {
+    const mergedQuestions = Array.from(
+      questions.reduce<
+        Map<string, { id: string; title: string; total: number; correct: number; preferredTrack: number }>
+      >((acc, question) => {
+        const key = this.normalizeQuestionText(question.text || question.title);
         const total = question.answers.length;
         const correct = question.answers.filter((answer) => answer.isCorrect).length;
+        const track = typeof question.audioTrack === 'number' ? question.audioTrack : Number.MAX_SAFE_INTEGER;
+        const current = acc.get(key);
+
+        if (!current) {
+          acc.set(key, {
+            id: question.id,
+            title: question.title,
+            total,
+            correct,
+            preferredTrack: track,
+          });
+          return acc;
+        }
+
+        current.total += total;
+        current.correct += correct;
+
+        if (track < current.preferredTrack) {
+          current.id = question.id;
+          current.title = question.title;
+          current.preferredTrack = track;
+        }
+
+        return acc;
+      }, new Map()).values(),
+    );
+
+    const lowestAccuracyQuestions = mergedQuestions
+      .map((question) => {
+        const accuracy = question.total ? Math.round((question.correct / question.total) * 100) : 0;
         return {
           id: question.id,
           title: question.title,
-          accuracy: total ? Math.round((correct / total) * 100) : 0,
-          total,
+          accuracy,
+          total: question.total,
         };
       })
       .sort((a, b) => a.accuracy - b.accuracy)
