@@ -1,5 +1,5 @@
 import { SaveOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Descriptions, Form, Input, InputNumber, Row, Slider, Space, message } from 'antd';
+import { App as AntdApp, Button, Card, Col, Descriptions, Form, Input, InputNumber, Row, Slider, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import { AsyncState } from '../components/AsyncState';
 import { PageTitle } from '../components/PageTitle';
@@ -9,6 +9,7 @@ import { api } from '../services/api';
 import { SystemConfig } from '../types/domain';
 
 export function SettingsPage() {
+  const { message } = AntdApp.useApp();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
   const { devices, refresh } = useRealtime();

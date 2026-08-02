@@ -1,10 +1,11 @@
 import {
   ApiOutlined,
   ArrowRightOutlined,
+  AudioOutlined,
+  CheckCircleOutlined,
+  CloudServerOutlined,
   ControlOutlined,
-  DatabaseOutlined,
   ExperimentOutlined,
-  EyeOutlined,
   LoginOutlined,
   PlayCircleOutlined,
   SafetyCertificateOutlined,
@@ -12,28 +13,35 @@ import {
 } from '@ant-design/icons';
 import { Button, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { OfficialBoard } from '../components/OfficialBoard';
+
+const previewPieces = [
+  { color: 'BLUE' as const, tile: 4, label: 'Jugador azul' },
+  { color: 'RED' as const, tile: 9, label: 'Jugador rojo' },
+  { color: 'GREEN' as const, tile: 14, label: 'Jugador verde' },
+  { color: 'YELLOW' as const, tile: 19, label: 'Jugador amarillo' },
+];
+
+const features = [
+  { icon: <AudioOutlined />, title: 'Accesibilidad', text: 'Guía por voz, botones físicos y validación de cada movimiento.' },
+  { icon: <ExperimentOutlined />, title: 'Educación', text: 'Preguntas sobre las regiones y la diversidad del Ecuador.' },
+  { icon: <ApiOutlined />, title: 'Sensores', text: '28 sensores Hall mantienen el tablero físico sincronizado.' },
+  { icon: <CloudServerOutlined />, title: 'Plataforma web', text: 'Supervisión, historial y reportes desde un solo panel.' },
+];
 
 const steps = [
-  { icon: <PlayCircleOutlined />, title: 'Inicia la partida', text: 'El tablero verifica el sistema y prepara a los jugadores.' },
-  { icon: <ControlOutlined />, title: 'Lanza el dado', text: 'El ESP32 anuncia el turno y genera el siguiente movimiento.' },
-  { icon: <ExperimentOutlined />, title: 'Mueve la ficha', text: 'Los sensores Hall validan la casilla alcanzada.' },
-  { icon: <SoundOutlined />, title: 'Escucha y responde', text: 'Las preguntas y contenidos guian el aprendizaje.' },
+  { icon: <PlayCircleOutlined />, title: 'Lanza el dado', text: 'El ESP32 genera y anuncia el resultado.' },
+  { icon: <ControlOutlined />, title: 'Mueve la ficha', text: 'El jugador avanza sobre el recorrido físico.' },
+  { icon: <CheckCircleOutlined />, title: 'El sistema valida', text: 'Los sensores confirman la posición correcta.' },
+  { icon: <SoundOutlined />, title: 'Escucha y aprende', text: 'El tablero reproduce la pregunta o el contenido.' },
 ];
 
 const technology = [
-  ['ESP32', 'Coordina la partida y la conexion con la plataforma.'],
-  ['Arduino UNO', 'Lee los sensores Hall del recorrido inicial.'],
-  ['Sensores Hall', 'Validan el movimiento de cada ficha.'],
-  ['DFPlayer Mini', 'Reproduce las instrucciones y preguntas.'],
-  ['Botones fisicos', 'Permiten responder sin depender de una pantalla.'],
-  ['Plataforma web', 'Supervisa, registra y reporta cada partida.'],
-];
-
-const regions = [
-  ['Costa', 'Agricultura tropical y biodiversidad del litoral.', 'region-costa'],
-  ['Sierra', 'Cultivos andinos, volcanes y saberes ancestrales.', 'region-sierra'],
-  ['Amazonia', 'Rios, provincias y riqueza natural de la selva.', 'region-amazonia'],
-  ['Region Insular', 'Especies y conservacion de Galapagos.', 'region-insular'],
+  ['ESP32', 'Control principal y conexión WiFi'],
+  ['Arduino UNO', 'Lectura de sensores 1 a 15'],
+  ['28 sensores Hall', 'Detección de posiciones'],
+  ['DFPlayer Mini', 'Retroalimentación auditiva'],
+  ['WebSocket', 'Monitoreo en tiempo real'],
 ];
 
 export function WelcomePage() {
@@ -42,24 +50,26 @@ export function WelcomePage() {
   return (
     <main className="welcome-page">
       <header className="welcome-header">
-        <button className="welcome-brand" type="button" onClick={() => navigate('/')} aria-label="Inicio de Parchis Inclusivo">
+        <button className="welcome-brand" type="button" onClick={() => navigate('/')} aria-label="Inicio de Parchís Inclusivo">
           <span className="welcome-brand-mark"><ExperimentOutlined /></span>
-          <span><strong>Parchis</strong><small>Educativo</small></span>
+          <span><strong>Parchís Inclusivo</strong><small>Plataforma educativa IoT</small></span>
         </button>
-        <nav className="welcome-nav" aria-label="Navegacion principal">
-          <a href="#funciona">Como funciona</a>
-          <a href="#tecnologia">Tecnologia</a>
+        <nav className="welcome-nav" aria-label="Navegación principal">
+          <a href="#inicio">Inicio</a>
+          <a href="#funciona">Cómo funciona</a>
+          <a href="#tecnologia">Tecnología</a>
           <a href="#accesibilidad">Accesibilidad</a>
-          <Button type="primary" icon={<LoginOutlined />} onClick={() => navigate('/login')}>Acceder al panel</Button>
+          <a href="#proyecto">Proyecto</a>
+          <Button type="primary" icon={<LoginOutlined />} onClick={() => navigate('/login')}>Acceder</Button>
         </nav>
       </header>
 
-      <section className="welcome-hero" aria-labelledby="welcome-title">
+      <section className="welcome-hero" id="inicio" aria-labelledby="welcome-title">
         <div className="welcome-copy">
           <Typography.Text className="welcome-eyebrow">Juego educativo inclusivo</Typography.Text>
-          <Typography.Title id="welcome-title">Aprender jugando,<br /><span>incluir ense&ntilde;ando.</span></Typography.Title>
+          <Typography.Title id="welcome-title">Aprender jugando.<br />Incluir aprendiendo.</Typography.Title>
           <Typography.Paragraph>
-            Una experiencia multisensorial que une agricultura, aprendizaje, accesibilidad y tecnologia para descubrir el Ecuador jugando.
+            Una experiencia multisensorial que combina agricultura, accesibilidad y tecnología para aprender sobre las regiones del Ecuador.
           </Typography.Paragraph>
           <div className="welcome-actions">
             <Button type="primary" size="large" icon={<ArrowRightOutlined />} onClick={() => navigate('/login')}>Explorar el panel</Button>
@@ -67,40 +77,47 @@ export function WelcomePage() {
           </div>
         </div>
 
-        <div className="welcome-board-visual" aria-label="Resumen visual del tablero inclusivo">
-          <div className="welcome-board-meta"><span><ApiOutlined /> 28 casillas sensorizadas</span><span><SoundOutlined /> Guia por audio</span></div>
-          <div className="welcome-board-surface">
-            <div className="welcome-route route-top">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
-            <div className="welcome-route route-right">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
-            <div className="welcome-route route-bottom">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
-            <div className="welcome-route route-left">{Array.from({ length: 5 }, (_, index) => <i key={index} />)}</div>
-            <div className="welcome-board-core"><ExperimentOutlined /><strong>Parchis<br />inclusivo</strong></div>
-            <span className="route-piece piece-blue" /><span className="route-piece piece-red" /><span className="route-piece piece-green" /><span className="route-piece piece-yellow" />
+        <div className="product-preview" aria-label="Vista del sistema de monitoreo del tablero">
+          <div className="product-preview-header">
+            <div><span>Tablero en tiempo real</span><small>Vista del sistema físico</small></div>
+            <span className="system-badge"><i /> Sistema listo</span>
           </div>
-          <div className="welcome-board-controls"><span>Encendido</span><span>Dado</span><span>A</span><span>B</span><span>Repetir</span><span>Confirmar</span></div>
+          <div className="product-preview-body">
+            <OfficialBoard compact pieces={previewPieces} />
+            <div className="physical-controls" aria-label="Controles físicos del tablero">
+              {['Encendido', 'Dado', 'A', 'B', 'Repetir', 'Confirmar'].map((control) => <span key={control}>{control}</span>)}
+            </div>
+          </div>
+          <div className="product-preview-footer">
+            <span><i className="status-dot is-green" />28 sensores</span>
+            <span><i className="status-dot is-green" />Audio disponible</span>
+            <span><i className="status-dot is-green" />ESP32 conectado</span>
+          </div>
         </div>
       </section>
 
-      <section className="welcome-benefits" aria-label="Principios del proyecto">
-        <article><EyeOutlined /><div><strong>Inclusivo</strong><span>El juego comunica cada accion a traves de audio y controles fisicos.</span></div></article>
-        <article><ExperimentOutlined /><div><strong>Educativo</strong><span>Las preguntas convierten el recorrido en una experiencia de aprendizaje.</span></div></article>
-        <article><SoundOutlined /><div><strong>Multisensorial</strong><span>Sonido, tacto, sensores y retroalimentacion en una misma partida.</span></div></article>
-        <article><SafetyCertificateOutlined /><div><strong>Tecnologia accesible</strong><span>El tablero valida movimientos y mantiene el juego acompanado.</span></div></article>
+      <section className="welcome-features" aria-label="Características del proyecto">
+        {features.map((feature) => (
+          <article key={feature.title}>
+            <span className="feature-icon">{feature.icon}</span>
+            <div><strong>{feature.title}</strong><p>{feature.text}</p></div>
+          </article>
+        ))}
       </section>
 
       <section className="welcome-section welcome-process" id="funciona">
         <div className="welcome-section-heading">
-          <Typography.Text>Una partida acompa&ntilde;ada</Typography.Text>
-          <Typography.Title level={2}>Como funciona el juego</Typography.Title>
-          <Typography.Paragraph>Una secuencia clara para que el tablero fisico y la plataforma trabajen juntos.</Typography.Paragraph>
+          <Typography.Text>Una secuencia clara</Typography.Text>
+          <Typography.Title level={2}>Cómo funciona una partida</Typography.Title>
+          <Typography.Paragraph>El tablero físico y la plataforma trabajan juntos sin depender de indicaciones visuales.</Typography.Paragraph>
         </div>
         <div className="welcome-steps">
           {steps.map((step, index) => (
             <article key={step.title}>
-              <span className="welcome-step-number">0{index + 1}</span>
+              <span className="welcome-step-number">{index + 1}</span>
               <span className="welcome-step-icon">{step.icon}</span>
-              <Typography.Title level={4}>{step.title}</Typography.Title>
-              <Typography.Paragraph>{step.text}</Typography.Paragraph>
+              <div><strong>{step.title}</strong><p>{step.text}</p></div>
+              {index < steps.length - 1 ? <ArrowRightOutlined className="step-arrow" /> : null}
             </article>
           ))}
         </div>
@@ -108,34 +125,32 @@ export function WelcomePage() {
 
       <section className="welcome-section welcome-tech" id="tecnologia">
         <div className="welcome-section-heading">
-          <Typography.Text>Tablero + software</Typography.Text>
-          <Typography.Title level={2}>Tecnologia que acompa&ntilde;a</Typography.Title>
+          <Typography.Text>Hardware y software</Typography.Text>
+          <Typography.Title level={2}>Tecnología detrás del tablero</Typography.Title>
         </div>
-        <div className="welcome-tech-grid">
-          {technology.map(([name, text]) => (
-            <article key={name}>
-              <DatabaseOutlined />
-              <div><strong>{name}</strong><span>{text}</span></div>
-            </article>
+        <div className="technology-list">
+          {technology.map(([name, detail]) => (
+            <article key={name}><span>{name}</span><p>{detail}</p><CheckCircleOutlined /></article>
           ))}
         </div>
       </section>
 
       <section className="welcome-accessibility" id="accesibilidad">
-        <div><Typography.Text>Accesibilidad desde el origen</Typography.Text><Typography.Title level={2}>El tablero no depende de la vista para jugar.</Typography.Title></div>
+        <div>
+          <Typography.Text>Accesibilidad desde el origen</Typography.Text>
+          <Typography.Title level={2}>Jugar sin depender de la vista.</Typography.Title>
+          <Typography.Paragraph>Las acciones importantes se comunican por audio y se validan directamente sobre el tablero.</Typography.Paragraph>
+        </div>
         <ul>
-          <li>Instrucciones y preguntas reproducidas por audio.</li>
-          <li>Botones fisicos para dado, opciones y confirmacion.</li>
-          <li>Sensores que validan cada movimiento sobre el tablero.</li>
-          <li>Monitoreo web para el docente o supervisor.</li>
+          <li><SafetyCertificateOutlined /><span><strong>Interacción autónoma</strong>Botones físicos identificables y confirmación auditiva.</span></li>
+          <li><SoundOutlined /><span><strong>Información constante</strong>Turnos, movimientos, preguntas y resultados por voz.</span></li>
+          <li><ApiOutlined /><span><strong>Validación física</strong>Los sensores detectan posiciones y movimientos incorrectos.</span></li>
         </ul>
       </section>
 
-      <section className="welcome-section welcome-regions" aria-labelledby="regions-title">
-        <div className="welcome-section-heading"><Typography.Text>Aprender desde el territorio</Typography.Text><Typography.Title id="regions-title" level={2}>Ecuador en cada pregunta</Typography.Title></div>
-        <div className="welcome-region-grid">
-          {regions.map(([name, text, color]) => <article className={color} key={name}><strong>{name}</strong><span>{text}</span></article>)}
-        </div>
+      <section className="welcome-project" id="proyecto">
+        <div><span>Proyecto universitario</span><strong>Parchís Inclusivo Multisensorial</strong></div>
+        <p>Educación, agricultura y tecnología accesible desarrolladas en Ecuador.</p>
       </section>
     </main>
   );

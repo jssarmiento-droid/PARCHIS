@@ -1,5 +1,5 @@
 import { EditOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Switch, Table, Tag, message } from 'antd';
+import { App as AntdApp, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Switch, Table, Tag } from 'antd';
 import { useMemo, useState } from 'react';
 import { AsyncState } from '../components/AsyncState';
 import { PageTitle } from '../components/PageTitle';
@@ -34,6 +34,7 @@ const regionLabel = Object.fromEntries(
 ) as Record<QuestionRegion, string>;
 
 export function QuestionsPage() {
+  const { message } = AntdApp.useApp();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Question | null>(null);
   const [filters, setFilters] = useState({ search: '', topic: '', region: '' });

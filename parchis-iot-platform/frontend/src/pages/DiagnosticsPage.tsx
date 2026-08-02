@@ -1,11 +1,12 @@
 import { ApiOutlined, BugOutlined, ThunderboltOutlined, WifiOutlined } from '@ant-design/icons';
-import { Button, Card, Col, List, Row, Space, Statistic, Switch, Tag, message } from 'antd';
+import { App as AntdApp, Button, Card, Col, List, Row, Space, Statistic, Switch, Tag } from 'antd';
 import { useState } from 'react';
 import { PageTitle } from '../components/PageTitle';
 import { useRealtime } from '../hooks/useRealtime';
 import { socket } from '../services/socket';
 
 export function DiagnosticsPage() {
+  const { message } = AntdApp.useApp();
   const { connected, devices, technicalEvents, movements, activeGame } = useRealtime();
   const [simulationEnabled, setSimulationEnabled] = useState(false);
   const esp32 = devices.find((device) => device.kind === 'ESP32');

@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, Modal, Popconfirm, Progress, Select, Space, Table, Upload, message } from 'antd';
+import { App as AntdApp, Button, Card, Form, Input, Modal, Popconfirm, Progress, Select, Space, Table, Upload } from 'antd';
 import { useState } from 'react';
 import { AsyncState } from '../components/AsyncState';
 import { PageTitle } from '../components/PageTitle';
@@ -21,6 +21,7 @@ const relationOptions = [
 ];
 
 export function AudiosPage() {
+  const { message } = AntdApp.useApp();
   const [editing, setEditing] = useState<AudioAsset | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);

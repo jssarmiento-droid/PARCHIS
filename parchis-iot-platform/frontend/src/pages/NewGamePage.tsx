@@ -1,5 +1,5 @@
 import { PlayCircleOutlined, UserOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Checkbox, Col, Form, Input, List, Row, Space, Tabs, Tag, Typography, message } from 'antd';
+import { Alert, App as AntdApp, Button, Card, Checkbox, Col, Form, Input, List, Row, Space, Tabs, Tag, Typography } from 'antd';
 import type { AxiosError } from 'axios';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +36,7 @@ const regions: Array<{ key: QuestionRegion; label: string }> = [
 ];
 
 export function NewGamePage() {
+  const { message } = AntdApp.useApp();
   const navigate = useNavigate();
   const { refresh, systemConfig } = useRealtime();
   const [submitting, setSubmitting] = useState(false);

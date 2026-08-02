@@ -1,5 +1,5 @@
 import { CheckCircleOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Descriptions, Modal, Popconfirm, Progress, Row, Space, Table, Tag, Timeline, Typography, message } from 'antd';
+import { Alert, App as AntdApp, Button, Card, Col, Descriptions, Popconfirm, Progress, Row, Space, Table, Tag, Timeline, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { BoardMap } from '../components/BoardMap';
 import { PageTitle } from '../components/PageTitle';
@@ -11,7 +11,8 @@ import { PlayerColor } from '../types/domain';
 const colorLabel: Record<PlayerColor, string> = { BLUE: 'Azul', RED: 'Rojo', GREEN: 'Verde', YELLOW: 'Amarillo' };
 
 export function MonitoringPage() {
-  const { activeGame, movements, devices, finalReport, refresh } = useRealtime();
+  const { message, modal } = AntdApp.useApp();
+  const { connected, activeGame, movements, devices, finalReport, refresh } = useRealtime();
   const [checking, setChecking] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const esp32 = devices.find((device) => device.kind === 'ESP32');
@@ -21,14 +22,19 @@ export function MonitoringPage() {
     ? activeGame?.selectedQuestions?.find((item) => item.question.id === latest.questionId)?.question
     : undefined;
   const questionText = latest?.questionText || selectedQuestion?.text;
+  const dfPlayerValue = esp32?.health?.dfPlayer;
+  const sensorsValue = esp32?.health?.sensors;
+  const wifiRssi = typeof esp32?.health?.wifiRssi === 'number' ? esp32.health.wifiRssi : null;
+  const audioReady = dfPlayerValue === true || String(dfPlayerValue || '').toLowerCase() === 'ok';
+  const sensorsReady = sensorsValue === true || String(sensorsValue || '').toLowerCase() === 'ok';
 
   useEffect(() => {
     if (!finalReport) return;
-    Modal.success({
+    modal.success({
       title: 'Reporte final generado',
       content: 'La partida finalizó y el resumen quedó guardado en la base de datos.',
     });
-  }, [finalReport]);
+  }, [finalReport, modal]);
 
   async function checkDevice() {
     setChecking(true);
@@ -65,8 +71,8 @@ export function MonitoringPage() {
     <Space direction="vertical" size="large" className="full-width">
       <PageTitle title="Monitoreo en tiempo real" subtitle="Eventos del ESP32, panel de botones, turnos y movimiento educativo." />
       <Row gutter={[16, 16]}>
-        <Col xs={24} lg={16}>
-          <Card className="data-card" title={activeGame?.publicId || 'Sin partida activa'}>
+        <Col xs={24} xl={16}>
+          <Card className="data-card game-state-card" title={activeGame?.publicId || 'Sin partida activa'} extra={<Tag color={activeGame ? 'green' : 'default'}>{activeGame ? 'Partida preparada' : 'Esperando'}</Tag>}>
             <Descriptions bordered column={{ xs: 1, md: 2 }}>
               <Descriptions.Item label="Estado">{activeGame?.status || 'Sin iniciar'}</Descriptions.Item>
               <Descriptions.Item label="Jugador activo">{latest?.color ? colorLabel[latest.color] : 'Esperando evento'}</Descriptions.Item>
@@ -77,13 +83,18 @@ export function MonitoringPage() {
             </Descriptions>
           </Card>
         </Col>
-        <Col xs={24} lg={8}>
-          <Card className="data-card" title="Dispositivos">
-            <Space direction="vertical" className="full-width">
-              <Tag color={esp32?.connected ? 'green' : 'red'}>ESP32: {esp32?.connected ? 'Conectado' : 'Desconectado'}</Tag>
-              <Tag color={uno?.connected ? 'green' : 'red'}>Arduino UNO: {uno?.connected ? 'Activo' : 'Sin señal'}</Tag>
+        <Col xs={24} xl={8}>
+          <Card className="data-card device-status-card" title="Estado del circuito">
+            <div className="device-status-list">
+              <div><span><i className={`status-dot ${connected ? 'is-green' : 'is-red'}`} />Servidor</span><strong>{connected ? 'Conectado' : 'Desconectado'}</strong></div>
+              <div><span><i className={`status-dot ${esp32?.connected ? 'is-green' : 'is-red'}`} />ESP32</span><strong>{esp32?.connected ? 'Conectado' : 'Desconectado'}</strong></div>
+              <div><span><i className={`status-dot ${uno?.connected ? 'is-green' : 'is-muted'}`} />Arduino UNO</span><strong>{uno?.connected ? 'Conectado' : 'Sin señal'}</strong></div>
+              <div><span><i className={`status-dot ${audioReady ? 'is-green' : 'is-muted'}`} />DFPlayer</span><strong>{audioReady ? 'Disponible' : 'Sin telemetría'}</strong></div>
+              <div><span><i className={`status-dot ${sensorsReady ? 'is-green' : 'is-muted'}`} />Sensores</span><strong>{sensorsReady ? '28 / 28' : 'Esperando lectura'}</strong></div>
+              <div><span><i className={`status-dot ${wifiRssi !== null ? 'is-green' : 'is-muted'}`} />WiFi</span><strong>{wifiRssi !== null ? `${wifiRssi} dBm` : 'Sin datos'}</strong></div>
+            </div>
+            <div className="device-status-actions">
               <Button loading={checking} onClick={checkDevice}>Comprobar conexión</Button>
-              <Typography.Text type="secondary">El ESP32 consulta la partida activa por HTTP.</Typography.Text>
               <Popconfirm
                 title="Finalizar partida"
                 description="Se generará el reporte final y no podrá continuar el juego."
@@ -93,7 +104,7 @@ export function MonitoringPage() {
               >
                 <Button danger loading={finishing} disabled={!activeGame || finishing}>Finalizar partida</Button>
               </Popconfirm>
-            </Space>
+            </div>
           </Card>
         </Col>
         <Col xs={24}>
@@ -121,13 +132,13 @@ export function MonitoringPage() {
           <Row gutter={[16, 16]}>
             {activeGame.players.map((player) => (
               <Col xs={24} md={12} xl={6} key={player.id}>
-                <Card size="small">
-                  <Typography.Text strong>{colorLabel[player.color]}</Typography.Text>
+                <div className={`player-status-item player-${player.color.toLowerCase()}`}>
+                  <span className="player-status-color">{colorLabel[player.color]}</span>
                   <Typography.Title level={4}>{player.name}</Typography.Title>
                   <Progress percent={Math.round((player.currentTile / 28) * 100)} />
                   <Typography.Text>Puntaje educativo: {player.educationalScore}</Typography.Text>
                   {player.isWinner ? <Tag color="gold" icon={<CheckCircleOutlined />}>Ganador</Tag> : null}
-                </Card>
+                </div>
               </Col>
             ))}
           </Row>

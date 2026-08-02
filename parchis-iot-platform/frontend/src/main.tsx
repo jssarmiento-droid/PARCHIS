@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ConfigProvider } from 'antd';
+import { App as AntdApp, ConfigProvider } from 'antd';
 import esES from 'antd/locale/es_ES';
 import { BrowserRouter } from 'react-router-dom';
 import App from './routes/App';
@@ -13,30 +13,34 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       locale={esES}
       theme={{
         token: {
-          colorPrimary: '#2f8a3a',
-          colorInfo: '#2f8a3a',
-          colorSuccess: '#2f8a3a',
-          colorBgLayout: '#f3f5f7',
-          colorText: '#111827',
-          borderRadius: 4,
-          fontFamily: 'Inter, system-ui, Segoe UI, sans-serif',
+          colorPrimary: '#1f7a3d',
+          colorInfo: '#2876b8',
+          colorSuccess: '#2f8a48',
+          colorWarning: '#c58c20',
+          colorError: '#c84848',
+          colorBgLayout: '#f6f7f2',
+          colorText: '#152018',
+          colorTextSecondary: '#647067',
+          colorBorder: '#e3e7df',
+          borderRadius: 8,
+          fontFamily: 'Inter, Manrope, Segoe UI, sans-serif',
         },
         components: {
           Card: {
-            borderRadiusLG: 4,
+            borderRadiusLG: 10,
             paddingLG: 18,
           },
           Button: {
-            borderRadius: 4,
-            controlHeight: 34,
+            borderRadius: 8,
+            controlHeight: 38,
           },
           Input: {
-            borderRadius: 4,
-            controlHeight: 34,
+            borderRadius: 8,
+            controlHeight: 40,
           },
           Select: {
-            borderRadius: 4,
-            controlHeight: 34,
+            borderRadius: 8,
+            controlHeight: 40,
           },
           Table: {
             cellPaddingBlock: 9,
@@ -46,9 +50,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         },
       }}
     >
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <RealtimeProvider>
-          <App />
+          <AntdApp>
+            <App />
+          </AntdApp>
         </RealtimeProvider>
       </BrowserRouter>
     </ConfigProvider>

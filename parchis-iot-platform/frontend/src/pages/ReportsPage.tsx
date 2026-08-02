@@ -1,6 +1,6 @@
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Column, Pie } from '@ant-design/charts';
-import { Button, Card, Col, Row, Space, Table, message } from 'antd';
+import { App as AntdApp, Button, Card, Col, Row, Space, Table } from 'antd';
 import { AsyncState } from '../components/AsyncState';
 import { MetricCard } from '../components/MetricCard';
 import { PageTitle } from '../components/PageTitle';
@@ -21,6 +21,7 @@ interface ReportData {
 }
 
 export function ReportsPage() {
+  const { message } = AntdApp.useApp();
   const { data: report, loading, refreshing, error, reload } = useResource<ReportData>(
     async () => (await api.get('/reports')).data,
     [],
