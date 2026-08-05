@@ -177,6 +177,9 @@ export class GamesService {
     if (!game) throw new NotFoundException('No existe partida activa');
 
     const color = this.normalizeColor(typeof payload.color === 'string' ? payload.color : undefined);
+    if (!color) {
+      throw new BadRequestException('El evento del dispositivo debe incluir un color de jugador válido');
+    }
     const player = game.players.find((item) => item.color === color);
     const diceValue = Number(payload.diceValue || payload.dice || 0) || null;
     const tileType = this.normalizeTileType(typeof payload.tileType === 'string' ? payload.tileType : undefined);
@@ -267,10 +270,10 @@ export class GamesService {
     return `Partida #${year}-${String(count + 1).padStart(3, '0')}`;
   }
 
-  private normalizeColor(value: string | undefined): PlayerColor {
-    const color = String(value || 'BLUE').toUpperCase();
+  private normalizeColor(value: string | undefined): PlayerColor | undefined {
+    const color = String(value || '').toUpperCase();
     if (['BLUE', 'RED', 'GREEN', 'YELLOW'].includes(color)) return color as PlayerColor;
-    return 'BLUE';
+    return undefined;
   }
 
   private normalizeTileType(value: string | undefined): TileType {

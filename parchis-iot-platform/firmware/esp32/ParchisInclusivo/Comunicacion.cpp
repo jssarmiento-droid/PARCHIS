@@ -1,6 +1,7 @@
 #include "Comunicacion.h"
 #include "Audios.h"
 #include "Config.h"
+#include <WiFiClientSecure.h>
 
 void Comunicacion::iniciar() {
   WiFi.mode(WIFI_STA);
@@ -25,7 +26,11 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
 
   HTTPClient http;
   const String url = String(Config::API_BASE_URL) + "/device/games/active";
-  if (!http.begin(url)) return false;
+  WiFiClient plainClient;
+  WiFiClientSecure secureClient;
+  const bool secure = url.startsWith("https://");
+  if (secure) secureClient.setInsecure();
+  if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) return false;
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
   agregarHeaders(http, false);
 
@@ -90,7 +95,11 @@ bool Comunicacion::obtenerConfiguracion(ConfiguracionRemota& configuracion) {
 
   HTTPClient http;
   const String url = String(Config::API_BASE_URL) + "/device/config";
-  if (!http.begin(url)) return false;
+  WiFiClient plainClient;
+  WiFiClientSecure secureClient;
+  const bool secure = url.startsWith("https://");
+  if (secure) secureClient.setInsecure();
+  if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) return false;
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
   agregarHeaders(http, false);
 
@@ -210,7 +219,11 @@ bool Comunicacion::postBody(const char* path, const String& body) {
   if (!conectado()) return false;
   HTTPClient http;
   const String url = String(Config::API_BASE_URL) + path;
-  if (!http.begin(url)) return false;
+  WiFiClient plainClient;
+  WiFiClientSecure secureClient;
+  const bool secure = url.startsWith("https://");
+  if (secure) secureClient.setInsecure();
+  if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) return false;
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
   agregarHeaders(http, true);
   const int statusCode = http.POST(body);

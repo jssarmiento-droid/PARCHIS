@@ -79,6 +79,7 @@ export class ReportsService {
     );
 
     const lowestAccuracyQuestions = mergedQuestions
+      .filter((question) => question.total > 0)
       .map((question) => {
         const accuracy = question.total ? Math.round((question.correct / question.total) * 100) : 0;
         return {
@@ -101,10 +102,12 @@ export class ReportsService {
       },
       errorsByTile,
       lowestAccuracyQuestions,
-      chartSeries: [
-        { type: 'Correctas', value: correctAnswers },
-        { type: 'Incorrectas', value: incorrectAnswers },
-      ],
+      chartSeries: correctAnswers + incorrectAnswers > 0
+        ? [
+            { type: 'Correctas', value: correctAnswers },
+            { type: 'Incorrectas', value: incorrectAnswers },
+          ]
+        : [],
     };
   }
 }

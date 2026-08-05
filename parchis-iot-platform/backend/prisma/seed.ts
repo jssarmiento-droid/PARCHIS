@@ -21,7 +21,7 @@ async function main() {
     update: {},
     create: {
       id: 'default-config',
-      projectName: 'Parchis Inclusivo Multisensorial',
+      projectName: 'Parchís Inclusivo Multisensorial',
       playerCount: 4,
       tileCount: 28,
       timeoutSeconds: 20,
@@ -35,6 +35,7 @@ async function main() {
     'QUESTION', 'FREE', 'INFORMATIVE', 'START', 'QUESTION', 'FREE', 'INFORMATIVE', 'QUESTION', 'START', 'INFORMATIVE',
     'ENTRY', 'ENTRY', 'ENTRY', 'ENTRY', 'GOAL', 'GOAL', 'GOAL', 'GOAL',
   ] as const;
+
   for (let index = 1; index <= 28; index += 1) {
     await prisma.boardTile.upsert({
       where: { index },

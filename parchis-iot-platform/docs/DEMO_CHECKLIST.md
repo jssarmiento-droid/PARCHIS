@@ -1,31 +1,34 @@
-# Checklist para la demostración
+# Checklist de presentacion
 
-## Antes de encender
+## Antes de iniciar
 
-- Backend y frontend iniciados.
-- PostgreSQL con las diez preguntas y pistas 201 a 210.
-- MicroSD FAT32 con carpeta `/mp3/` y todos los audios.
-- WiFi, `API_BASE_URL` y `DEVICE_TOKEN` configurados en `firmware/esp32/ParchisInclusivo/Config.h`.
-- Arduino UNO y ESP32 cargados desde Arduino IDE.
-- GND común y conversor de nivel lógico para I²C.
+- Backend de Render activo.
+- Frontend de Vercel activo.
+- PostgreSQL disponible.
+- `DEVICE_TOKEN` igual en Render y `Config.h`.
+- WiFi del ESP32 con internet.
+- microSD en FAT32 con carpeta `MP3`.
+- Arduino UNO cargado con `ArduinoUnoHall.ino`.
+- ESP32 cargado con `ParchisInclusivo.ino`.
 
-## Prueba de extremo a extremo
+## Pruebas por modulo
 
-1. Crear una partida y seleccionar preguntas.
-2. Confirmar que Monitoreo muestra `CREATED`.
-3. Colocar únicamente las fichas de los jugadores participantes en sus casillas iniciales.
-4. Presionar Power y esperar el diagnóstico.
-5. Confirmar que la partida cambia a `RUNNING`.
-6. Probar dado, movimiento válido, casilla informativa, pregunta, A/B, Confirmar y Repetir.
-7. Probar una casilla ocupada y un dado que supere la meta.
-8. Llegar a meta y revisar el reporte final.
+- ESP32 conecta a WiFi.
+- ESP32 consulta partida activa.
+- Arduino UNO responde por I2C.
+- Sensores Hall detectan fichas.
+- Botones envian eventos.
+- DFPlayer reproduce una pista.
+- La pagina muestra ESP32 conectado.
+- Monitoreo recibe movimientos de todos los colores activos.
 
-## Señales de error
+## Flujo de defensa
 
-| Síntoma | Revisión |
-|---|---|
-| No se carga la partida | WiFi, URL del backend y partida preparada. |
-| No hay audio | Carpeta `/mp3/`, nombres, alimentación y UART del DFPlayer. |
-| Error Arduino UNO | SDA/A4 a GPIO21, SCL/A5 a GPIO22, GND común y conversor de nivel. |
-| Fichas incorrectas | Retirar colores no participantes y usar casillas iniciales 4, 9, 14 y 19. |
-| Eventos pendientes | El ESP32 los reenviará cuando recupere la red. |
+1. Iniciar sesion como administrador.
+2. Crear una partida.
+3. Seleccionar preguntas.
+4. Encender tablero.
+5. Mostrar eventos en monitoreo.
+6. Responder una pregunta.
+7. Finalizar o llegar a meta.
+8. Mostrar historial y reportes.

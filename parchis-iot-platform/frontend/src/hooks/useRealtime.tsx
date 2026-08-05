@@ -60,8 +60,16 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     socket.on('disconnect', () => setConnected(false));
     socket.on('device:status', setDevices);
     socket.on('device:telemetry', (event) => setTechnicalEvents((current) => [`Estado ESP32 recibido: ${JSON.stringify(event)}`, ...current].slice(0, 80)));
-    socket.on('game:state', setActiveGame);
-    socket.on('game:movement', (movement: MoveHistory) => setMovements((current) => [movement, ...current].slice(0, 60)));
+    socket.on('game:state', (game: GameSession) => {
+      setActiveGame(game);
+      if (game?.movements) setMovements(game.movements);
+    });
+    socket.on('game:movement', (movement: MoveHistory) => {
+      setMovements((current) => {
+        if (current.some((item) => item.id === movement.id)) return current;
+        return [movement, ...current].slice(0, 60);
+      });
+    });
     socket.on('nano:button-state', (event) => setTechnicalEvents((current) => [`Botón ${event.button}: ${event.pressed ? 'presionado' : 'liberado'}`, ...current].slice(0, 80)));
     socket.on('system:error', (event) => setTechnicalEvents((current) => [`Error: ${event.message}`, ...current].slice(0, 80)));
     socket.on('game:final-report', setFinalReport);

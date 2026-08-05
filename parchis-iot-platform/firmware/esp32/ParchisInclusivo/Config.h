@@ -7,9 +7,9 @@ namespace Config {
 constexpr char WIFI_SSID[] = "TU_RED_WIFI";
 constexpr char WIFI_PASSWORD[] = "TU_PASSWORD_WIFI";
 
-// Usa la IPv4 de la computadora durante pruebas locales. No uses localhost.
-constexpr char API_BASE_URL[] = "http://192.168.1.100:4000/api/v1";
-constexpr char DEVICE_TOKEN[] = "";
+// Backend desplegado para que el ESP32 envie eventos por HTTP.
+constexpr char API_BASE_URL[] = "https://parchis-iot-backend.onrender.com/api/v1";
+constexpr char DEVICE_TOKEN[] = "TU_DEVICE_TOKEN";
 constexpr char DEVICE_ID[] = "ESP32-PARCHIS-IOT-001";
 
 constexpr uint8_t MAX_PLAYERS = 4;

@@ -1,74 +1,24 @@
-# Arquitectura de Tres Capas
+# Arquitectura
 
-## Capa de presentación
+## Capas
 
-React + TypeScript + Vite + Ant Design.
+1. Presentacion: React, TypeScript, Ant Design.
+2. Aplicacion: NestJS, REST API, Socket.IO.
+3. Datos: Prisma ORM y PostgreSQL.
+4. Dispositivo: ESP32 maestro, Arduino UNO esclavo I2C, DFPlayer Mini.
 
-Responsabilidades:
+## Flujo de datos
 
-- Login del administrador.
-- Dashboard IoT.
-- Nueva partida.
-- Monitoreo en tiempo real.
-- Gestión de preguntas.
-- Gestión de audios.
-- Historial.
-- Reportes.
-- Configuración.
+1. El administrador crea una partida y selecciona preguntas desde la web.
+2. El backend guarda jugadores, preguntas y estado en PostgreSQL.
+3. El ESP32 consulta `/api/v1/device/games/active`.
+4. El ESP32 ejecuta la logica fisica del tablero y envia eventos a `/api/v1/device/events`.
+5. El backend persiste movimientos/respuestas y emite eventos por WebSocket.
+6. El frontend actualiza monitoreo, historial y reportes sin recargar la pagina.
 
-## Capa de aplicación
+## Responsabilidades
 
-NestJS.
-
-Modulos:
-
-- `auth`
-- `dashboard`
-- `devices`
-- `games`
-- `questions`
-- `audios`
-- `reports`
-- `settings`
-- `websocket`
-
-## Capa de datos
-
-Prisma ORM + PostgreSQL.
-
-Modelos principales:
-
-- `AdminUser`
-- `GameSession`
-- `GamePlayer`
-- `MoveHistory`
-- `AnswerHistory`
-- `Question`
-- `AudioAsset`
-- `BoardTile`
-- `DeviceStatus`
-- `ButtonEvent`
-- `SystemConfig`
-- `FinalReport`
-
-## Tolerancia a fallos
-
-El servidor mantiene el estado de dispositivos en `DeviceStatus`.
-
-Cuando el ESP32 se desconecta:
-
-- El frontend muestra `Dispositivo desconectado`.
-- La partida activa permanece en base de datos.
-- Los movimientos ya recibidos no se pierden.
-- Al reconectar, el ESP32 vuelve a emitir `esp32:system-status`.
-
-## Flujo recomendado
-
-1. El administrador inicia sesión.
-2. Crea una partida.
-3. El backend genera `Partida #YYYY-001`.
-4. El frontend emite `web:start-game`.
-5. El ESP32 recibe inicio de partida por WebSocket.
-6. El ESP32 emite eventos de juego.
-7. El backend guarda movimientos y retransmite al frontend.
-8. Al finalizar, se genera `FinalReport`.
+- Frontend: operacion, visualizacion, gestion y reportes.
+- Backend: autenticacion, persistencia, calculos, API y WebSocket.
+- ESP32: turnos, dado, botones, DFPlayer, sensores 16-28, HTTP.
+- Arduino UNO: sensores 1-15 por I2C.

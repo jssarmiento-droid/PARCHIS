@@ -1,52 +1,56 @@
 # Despliegue
 
+## Backend en Render
+
+Root directory:
+
+```text
+parchis-iot-platform/backend
+```
+
+Build command:
+
+```bash
+npm run render:build
+```
+
+Start command:
+
+```bash
+npm run render:start
+```
+
+Variables:
+
+```env
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+ADMIN_USER=admin
+ADMIN_PASSWORD=...
+DEVICE_TOKEN=...
+FRONTEND_URL=https://parchis-wine.vercel.app
+```
+
 ## Frontend en Vercel
 
-Recomendado para esta arquitectura:
-
-1. Sube el repositorio a GitHub.
-2. En Vercel, importa el proyecto.
-3. Selecciona como Root Directory:
+Root directory:
 
 ```text
 parchis-iot-platform/frontend
 ```
 
-4. Configura la variable:
+Variable:
 
-```text
-VITE_API_URL=https://URL-DE-TU-BACKEND
+```env
+VITE_API_URL=https://parchis-iot-backend.onrender.com/api/v1
 ```
 
-5. Deploy.
+## Firmware
 
-El archivo `frontend/vercel.json` ya deja preparada la app Vite para rutas internas como `/dashboard`, `/monitoreo` y `/reportes`.
+Para produccion, `Config.h` debe usar:
 
-## Backend
-
-El backend usa NestJS, PostgreSQL y WebSocket persistente para comunicación con el ESP32. Para una demo universitaria y comunicación IoT estable, es recomendable desplegarlo en un servicio con proceso Node.js persistente, por ejemplo:
-
-```text
-Render
-Railway
-Fly.io
-Servidor VPS
-PC local en la misma red del ESP32
+```cpp
+constexpr char API_BASE_URL[] = "https://parchis-iot-backend.onrender.com/api/v1";
 ```
 
-Variables necesarias:
-
-```text
-DATABASE_URL
-JWT_SECRET
-ADMIN_USER
-ADMIN_PASSWORD
-FRONTEND_URL
-PORT
-```
-
-## Nota sobre WebSocket y Vercel
-
-El frontend sí debe ir a Vercel sin problema.
-
-Para el backend con Socket.IO y dispositivos físicos, conviene mantener un servidor persistente. Si se quiere alojar también en Vercel, habría que revisar y adaptar la arquitectura a las capacidades serverless/Fluid Compute disponibles en la cuenta, porque el firmware del ESP32 necesita una conexión estable de larga duración.
+El `DEVICE_TOKEN` del firmware debe coincidir con Render.
