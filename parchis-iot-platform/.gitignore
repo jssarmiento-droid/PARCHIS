@@ -4,4 +4,3 @@ dist/
 uploads/
 *.log
 .DS_Store
-firmware/esp32/ParchisInclusivo/ConfigPrivate.h
