@@ -1,16 +1,12 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef CONFIG_PRIVATE_H
+#define CONFIG_PRIVATE_H
 
 #include <Arduino.h>
 
-#if __has_include("ConfigPrivate.h")
-#include "ConfigPrivate.h"
-#else
 namespace Config {
 constexpr char WIFI_SSID[] = "TU_RED_WIFI";
 constexpr char WIFI_PASSWORD[] = "TU_PASSWORD_WIFI";
 
-// Backend desplegado para que el ESP32 envie eventos por HTTP.
 constexpr char API_BASE_URL[] = "https://parchis-iot-backend.onrender.com/api/v1";
 constexpr char DEVICE_TOKEN[] = "TU_DEVICE_TOKEN";
 constexpr char DEVICE_ID[] = "ESP32-PARCHIS-IOT-001";
@@ -50,6 +46,5 @@ constexpr uint32_t EVENT_POST_INTERVAL_MS = 250;
 constexpr uint32_t EVENT_RETRY_MS = 2000;
 constexpr uint8_t EVENT_QUEUE_SIZE = 24;
 }  // namespace Config
-#endif
 
 #endif
