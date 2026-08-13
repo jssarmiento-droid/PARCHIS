@@ -37,7 +37,9 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
     Serial.println("[HTTP] No se pudo iniciar consulta de partida activa");
     return false;
   }
+  http.useHTTP10(true);
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
+  http.addHeader("Accept", "application/json");
   agregarHeaders(http, false);
 
   const int statusCode = http.GET();
@@ -48,11 +50,14 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
     return false;
   }
 
+  const String response = http.getString();
   DynamicJsonDocument document(24576);
-  const DeserializationError error = deserializeJson(document, http.getStream());
+  const DeserializationError error = deserializeJson(document, response);
   if (error || document.as<JsonVariant>().isNull()) {
     Serial.print("[HTTP] Error leyendo partida activa: ");
     Serial.println(error.c_str());
+    Serial.print("[HTTP] Tamano respuesta: ");
+    Serial.println(response.length());
     http.end();
     return false;
   }
@@ -117,7 +122,9 @@ bool Comunicacion::obtenerConfiguracion(ConfiguracionRemota& configuracion) {
   const bool secure = url.startsWith("https://");
   if (secure) secureClient.setInsecure();
   if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) return false;
+  http.useHTTP10(true);
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
+  http.addHeader("Accept", "application/json");
   agregarHeaders(http, false);
 
   const int statusCode = http.GET();
@@ -126,8 +133,9 @@ bool Comunicacion::obtenerConfiguracion(ConfiguracionRemota& configuracion) {
     return false;
   }
 
+  const String response = http.getString();
   DynamicJsonDocument document(1024);
-  const DeserializationError error = deserializeJson(document, http.getStream());
+  const DeserializationError error = deserializeJson(document, response);
   http.end();
   if (error) return false;
 
