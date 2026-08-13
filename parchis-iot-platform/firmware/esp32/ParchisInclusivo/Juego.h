@@ -54,7 +54,7 @@ class Juego {
   void enviarEstadoDispositivo();
   bool botonPresionado(TipoBoton boton);
   void esperarSesion();
-  void esperarPower();
+  void esperarConfirmacionInicio();
   void validarInicio();
   void iniciarPartidaFisica();
   void esperarDado();

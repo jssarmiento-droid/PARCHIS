@@ -76,6 +76,8 @@ firmware/esp32-sensores/Esp32SensoresHall/Esp32SensoresHall.ino
 
 Antes de subir al ESP32, editar `firmware/esp32/ParchisInclusivo/Config.h` con el WiFi real y el mismo `DEVICE_TOKEN` configurado en Render.
 
+El boton fisico de encendido solo alimenta el tablero. Cuando la pagina ya tiene una partida creada y las fichas estan en sus posiciones iniciales, el boton `Confirmar` inicia la validacion del tablero y arranca la partida fisica.
+
 ## Pines del ESP32 de sensores
 
 El segundo ESP32 lee las casillas 1 a 15:

@@ -25,10 +25,12 @@
 ## Flujo de defensa
 
 1. Iniciar sesion como administrador.
-2. Crear una partida.
-3. Seleccionar preguntas.
-4. Encender tablero.
-5. Mostrar eventos en monitoreo.
-6. Responder una pregunta.
-7. Finalizar o llegar a meta.
-8. Mostrar historial y reportes.
+2. Encender fisicamente el tablero.
+3. Crear una partida.
+4. Seleccionar preguntas.
+5. Colocar las fichas en sus casillas iniciales.
+6. Presionar Confirmar para validar posiciones e iniciar la partida fisica.
+7. Mostrar eventos en monitoreo.
+8. Responder una pregunta.
+9. Finalizar o llegar a meta.
+10. Mostrar historial y reportes.

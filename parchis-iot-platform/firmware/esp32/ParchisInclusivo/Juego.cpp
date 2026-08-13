@@ -35,7 +35,7 @@ void Juego::actualizar() {
 
   switch (estado_) {
     case EstadoJuego::ESPERANDO_SESION: esperarSesion(); break;
-    case EstadoJuego::ESPERANDO_POWER: esperarPower(); break;
+    case EstadoJuego::ESPERANDO_CONFIRMACION_INICIO: esperarConfirmacionInicio(); break;
     case EstadoJuego::VALIDANDO_INICIO: validarInicio(); break;
     case EstadoJuego::ESPERANDO_DADO: esperarDado(); break;
     case EstadoJuego::ESPERANDO_MOVIMIENTO: esperarMovimiento(); break;
@@ -54,7 +54,7 @@ void Juego::sincronizarPartida() {
   lastGamePollAt_ = now;
 
   if (estado_ != EstadoJuego::ESPERANDO_SESION
-      && estado_ != EstadoJuego::ESPERANDO_POWER
+      && estado_ != EstadoJuego::ESPERANDO_CONFIRMACION_INICIO
       && estado_ != EstadoJuego::FINALIZADO) {
     return;
   }
@@ -63,11 +63,11 @@ void Juego::sincronizarPartida() {
   if (!comunicacion_.obtenerPartidaActiva(next)) return;
 
   const bool newGame = next.id != configuracion_.id;
-  if (!newGame && estado_ != EstadoJuego::ESPERANDO_POWER) return;
+  if (!newGame && estado_ != EstadoJuego::ESPERANDO_CONFIRMACION_INICIO) return;
 
   configuracion_ = next;
   jugadores_.cargar(configuracion_);
-  estado_ = EstadoJuego::ESPERANDO_POWER;
+  estado_ = EstadoJuego::ESPERANDO_CONFIRMACION_INICIO;
   initialPositionErrorReported_ = false;
 }
 
@@ -101,13 +101,13 @@ bool Juego::botonPresionado(TipoBoton boton) {
 }
 
 void Juego::esperarSesion() {
-  if (botonPresionado(TipoBoton::POWER)) {
+  if (botonPresionado(TipoBoton::CONFIRMAR)) {
     audio_.reproducir(Audios::SIN_PARTIDA);
   }
 }
 
-void Juego::esperarPower() {
-  if (!botonPresionado(TipoBoton::POWER)) return;
+void Juego::esperarConfirmacionInicio() {
+  if (!botonPresionado(TipoBoton::CONFIRMAR)) return;
   audio_.reproducir(Audios::DIAGNOSTICO);
 
   if (!sensores_.puenteSensoresConectado()) {

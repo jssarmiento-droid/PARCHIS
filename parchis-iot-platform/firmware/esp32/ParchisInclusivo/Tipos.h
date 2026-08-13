@@ -29,7 +29,7 @@ enum class Respuesta : uint8_t {
 
 enum class EstadoJuego : uint8_t {
   ESPERANDO_SESION,
-  ESPERANDO_POWER,
+  ESPERANDO_CONFIRMACION_INICIO,
   VALIDANDO_INICIO,
   ESPERANDO_DADO,
   ESPERANDO_MOVIMIENTO,
