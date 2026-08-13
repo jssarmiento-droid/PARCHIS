@@ -18,7 +18,7 @@ class Comunicacion {
   bool enviarBoton(const String& gameId, const char* boton);
   bool enviarEstadoDispositivo(
     const String& gameId,
-    bool arduinoConectado,
+    bool puenteSensoresConectado,
     bool dfPlayerDisponible,
     uint8_t volumenPorcentaje,
     uint16_t tiempoMovimientoSegundos);

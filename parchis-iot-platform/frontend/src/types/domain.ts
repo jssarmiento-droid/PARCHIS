@@ -1,5 +1,5 @@
 export type PlayerColor = 'BLUE' | 'RED' | 'GREEN' | 'YELLOW';
-export type DeviceKind = 'ESP32' | 'ARDUINO_UNO';
+export type DeviceKind = 'ESP32' | 'ESP32_SENSORS';
 export type GameStatus = 'CREATED' | 'RUNNING' | 'PAUSED' | 'FINISHED' | 'ABORTED';
 
 export interface SystemConfig {

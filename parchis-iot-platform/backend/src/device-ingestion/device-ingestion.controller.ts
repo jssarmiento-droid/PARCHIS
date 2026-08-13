@@ -36,8 +36,8 @@ export class DeviceIngestionController {
       ipAddress,
       firmwareVersion: typeof payload.firmwareVersion === 'string' ? payload.firmwareVersion : undefined,
     });
-    if (payload.arduinoUno === 'connected') {
-      await this.devices.updateHealth('ARDUINO_UNO', {
+    if (payload.sensorBridge === 'connected') {
+      await this.devices.updateHealth('ESP32_SENSORS', {
         bridge: 'ESP32-I2C',
         connected: true,
       });

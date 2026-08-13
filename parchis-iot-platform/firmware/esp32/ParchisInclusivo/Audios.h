@@ -48,7 +48,7 @@ constexpr uint16_t GANA_ROJO = 303;
 constexpr uint16_t GANA_VERDE = 304;
 constexpr uint16_t GANA_AMARILLO = 305;
 
-constexpr uint16_t ERROR_ARDUINO = 402;
+constexpr uint16_t ERROR_PUENTE_SENSORES = 402;
 }  // namespace Audios
 
 #endif

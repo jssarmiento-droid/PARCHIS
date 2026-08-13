@@ -4,12 +4,12 @@
 #include <Arduino.h>
 
 namespace Config {
-constexpr char WIFI_SSID[] = "Red_Software";
-constexpr char WIFI_PASSWORD[] = "S0ft2026t$c.";
+constexpr char WIFI_SSID[] = "TU_RED_WIFI";
+constexpr char WIFI_PASSWORD[] = "TU_PASSWORD_WIFI";
 
 // Backend desplegado para que el ESP32 envie eventos por HTTP.
 constexpr char API_BASE_URL[] = "https://parchis-iot-backend.onrender.com/api/v1";
-constexpr char DEVICE_TOKEN[] = "a7fb1c990e09f211f68566c64e19ce43";
+constexpr char DEVICE_TOKEN[] = "TU_DEVICE_TOKEN";
 constexpr char DEVICE_ID[] = "ESP32-PARCHIS-IOT-001";
 
 constexpr uint8_t MAX_PLAYERS = 4;
@@ -17,7 +17,7 @@ constexpr uint8_t MAX_QUESTIONS = 10;
 constexpr uint8_t TOTAL_TILES = 28;
 constexpr uint8_t ROUTE_LENGTH = 22;
 
-constexpr uint8_t ARDUINO_I2C_ADDRESS = 0x08;
+constexpr uint8_t SENSOR_BRIDGE_I2C_ADDRESS = 0x08;
 constexpr int I2C_SDA_PIN = 21;
 constexpr int I2C_SCL_PIN = 22;
 

@@ -146,7 +146,7 @@ bool Comunicacion::enviarBoton(const String& gameId, const char* boton) {
 
 bool Comunicacion::enviarEstadoDispositivo(
     const String& gameId,
-    bool arduinoConectado,
+    bool puenteSensoresConectado,
     bool dfPlayerDisponible,
     uint8_t volumenPorcentaje,
     uint16_t tiempoMovimientoSegundos) {
@@ -154,8 +154,8 @@ bool Comunicacion::enviarEstadoDispositivo(
   payload["deviceId"] = Config::DEVICE_ID;
   payload["firmwareVersion"] = "4.0.0-integrado";
   payload["wifiRssi"] = WiFi.RSSI();
-  payload["sensors"] = arduinoConectado ? "ok" : "error";
-  payload["arduinoUno"] = arduinoConectado ? "connected" : "disconnected";
+  payload["sensors"] = puenteSensoresConectado ? "ok" : "error";
+  payload["sensorBridge"] = puenteSensoresConectado ? "connected" : "disconnected";
   payload["dfPlayer"] = dfPlayerDisponible ? "ok" : "not_ready";
   payload["pendingEvents"] = eventosPendientes();
   payload["droppedEvents"] = eventosDescartados();

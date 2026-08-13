@@ -65,15 +65,15 @@ class Juego {
   void iniciarPregunta();
   void esperarRespuesta();
   void esperarAudio();
-  void esperarReconexionArduino();
+  void esperarReconexionPuenteSensores();
   void cambiarTurno();
   void finalizarPartida();
   void anunciarTurno();
   void programarCambioTurno();
   void prepararEvento(DynamicJsonDocument& payload, const char* eventName);
   void enviarMovimientoInvalido(const char* reason);
-  bool requiereArduino() const;
-  void pausarPorArduino();
+  bool requierePuenteSensores() const;
+  void pausarPorPuenteSensores();
   void reiniciarMovimientoInesperado();
   void aplicarConfiguracionRemota();
 };

@@ -91,7 +91,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('test:device-disconnect')
-  async onTestDisconnect(@MessageBody() payload: { kind: 'ESP32' | 'ARDUINO_UNO' }) {
+  async onTestDisconnect(@MessageBody() payload: { kind: 'ESP32' | 'ESP32_SENSORS' }) {
     await this.devicesService.markDisconnected(payload.kind);
     this.server.emit('device:status', await this.devicesService.getStatus());
   }

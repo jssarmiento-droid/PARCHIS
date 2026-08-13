@@ -8,14 +8,14 @@
 - `DEVICE_TOKEN` igual en Render y `Config.h`.
 - WiFi del ESP32 con internet.
 - microSD en FAT32 con carpeta `MP3`.
-- Arduino UNO cargado con `ArduinoUnoHall.ino`.
+- ESP32 sensores cargado con `Esp32SensoresHall.ino`.
 - ESP32 cargado con `ParchisInclusivo.ino`.
 
 ## Pruebas por modulo
 
 - ESP32 conecta a WiFi.
 - ESP32 consulta partida activa.
-- Arduino UNO responde por I2C.
+- ESP32 sensores responde por I2C.
 - Sensores Hall detectan fichas.
 - Botones envian eventos.
 - DFPlayer reproduce una pista.

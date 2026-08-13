@@ -38,7 +38,7 @@ const steps = [
 
 const technology = [
   ['ESP32', 'Control principal y conexión WiFi'],
-  ['Arduino UNO', 'Lectura de sensores 1 a 15'],
+  ['ESP32 sensores', 'Lectura de sensores 1 a 15'],
   ['28 sensores Hall', 'Detección de posiciones'],
   ['DFPlayer Mini', 'Retroalimentación auditiva'],
   ['WebSocket', 'Monitoreo en tiempo real'],

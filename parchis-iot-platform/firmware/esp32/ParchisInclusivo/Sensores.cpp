@@ -36,16 +36,16 @@ bool Sensores::ocupada(uint8_t casilla) const {
   return (stableMask_ & (static_cast<uint32_t>(1) << (casilla - 1))) != 0;
 }
 
-bool Sensores::arduinoConectado() const {
-  return unoConnected_;
+bool Sensores::puenteSensoresConectado() const {
+  return sensorBridgeConnected_;
 }
 
 uint32_t Sensores::readRawMask() {
   uint16_t unoMask = 0;
   const uint8_t received = Wire.requestFrom(
-    static_cast<int>(Config::ARDUINO_I2C_ADDRESS), 2);
-  unoConnected_ = received == 2 && Wire.available() >= 2;
-  if (unoConnected_) {
+    static_cast<int>(Config::SENSOR_BRIDGE_I2C_ADDRESS), 2);
+  sensorBridgeConnected_ = received == 2 && Wire.available() >= 2;
+  if (sensorBridgeConnected_) {
     const uint8_t lowByte = Wire.read();
     const uint8_t highByte = Wire.read();
     unoMask = static_cast<uint16_t>(lowByte)

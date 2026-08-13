@@ -6,6 +6,12 @@ import { PrismaService } from '../common/prisma.service';
 export class DevicesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private deviceName(kind: DeviceKind) {
+    if (kind === 'ESP32') return 'ESP32 principal - Juego y audio';
+    if (kind === 'ESP32_SENSORS') return 'ESP32 sensores - Casillas 1 a 15';
+    return 'Dispositivo heredado - Sensores Hall';
+  }
+
   async getStatus() {
     await this.ensureDefaults();
     const staleBefore = new Date(Date.now() - 30_000);
@@ -13,14 +19,17 @@ export class DevicesService {
       where: { connected: true, lastSeenAt: { lt: staleBefore } },
       data: { connected: false },
     });
-    return this.prisma.deviceStatus.findMany({ orderBy: { kind: 'asc' } });
+    return this.prisma.deviceStatus.findMany({
+      where: { kind: { not: 'ARDUINO_UNO' } },
+      orderBy: { kind: 'asc' },
+    });
   }
 
   async markConnected(kind: DeviceKind, data: { ipAddress?: string; port?: number; firmwareVersion?: string }) {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: true, lastSeenAt: new Date(), ...data },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: true, lastSeenAt: new Date(), ...data },
+      create: { kind, name: this.deviceName(kind), connected: true, lastSeenAt: new Date(), ...data },
     });
   }
 
@@ -28,7 +37,7 @@ export class DevicesService {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: false },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: false },
+      create: { kind, name: this.deviceName(kind), connected: false },
     });
   }
 
@@ -37,7 +46,7 @@ export class DevicesService {
     return this.prisma.deviceStatus.upsert({
       where: { kind },
       update: { connected: true, health: healthJson, lastSeenAt: new Date() },
-      create: { kind, name: kind === 'ESP32' ? 'ESP32 DevKit V1' : 'Arduino UNO R3 - Sensores Hall', connected: true, health: healthJson, lastSeenAt: new Date() },
+      create: { kind, name: this.deviceName(kind), connected: true, health: healthJson, lastSeenAt: new Date() },
     });
   }
 
@@ -57,13 +66,13 @@ export class DevicesService {
     await Promise.all([
       this.prisma.deviceStatus.upsert({
         where: { kind: 'ESP32' },
-        update: {},
-        create: { kind: 'ESP32', name: 'ESP32 DevKit V1' },
+        update: { name: this.deviceName('ESP32') },
+        create: { kind: 'ESP32', name: this.deviceName('ESP32') },
       }),
       this.prisma.deviceStatus.upsert({
-        where: { kind: 'ARDUINO_UNO' },
-        update: {},
-        create: { kind: 'ARDUINO_UNO', name: 'Arduino UNO R3 - Sensores Hall' },
+        where: { kind: 'ESP32_SENSORS' },
+        update: { name: this.deviceName('ESP32_SENSORS') },
+        create: { kind: 'ESP32_SENSORS', name: this.deviceName('ESP32_SENSORS') },
       }),
     ]);
   }

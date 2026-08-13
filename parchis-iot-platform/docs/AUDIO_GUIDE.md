@@ -29,6 +29,6 @@ La carpeta debe llamarse `MP3`. Los archivos deben tener una sola extension `.mp
 - 0101-0105: audios informativos.
 - 0201-0210: preguntas educativas.
 - 0301-0305: llegada a meta y ganadores.
-- 0402: error de comunicacion con Arduino UNO.
+- 0402: error de comunicacion con el ESP32 de sensores.
 
 En la pagina, una pregunta con pista `201` corresponde al archivo `MP3/0201.mp3`.

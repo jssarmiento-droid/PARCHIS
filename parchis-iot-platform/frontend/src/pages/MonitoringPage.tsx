@@ -16,7 +16,7 @@ export function MonitoringPage() {
   const [checking, setChecking] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const esp32 = devices.find((device) => device.kind === 'ESP32');
-  const uno = devices.find((device) => device.kind === 'ARDUINO_UNO');
+  const sensorBridge = devices.find((device) => device.kind === 'ESP32_SENSORS');
   const latest = movements[0] || activeGame?.movements?.[0];
   const selectedQuestion = latest?.questionId
     ? activeGame?.selectedQuestions?.find((item) => item.question.id === latest.questionId)?.question
@@ -88,7 +88,7 @@ export function MonitoringPage() {
             <div className="device-status-list">
               <div><span><i className={`status-dot ${connected ? 'is-green' : 'is-red'}`} />Servidor</span><strong>{connected ? 'Conectado' : 'Desconectado'}</strong></div>
               <div><span><i className={`status-dot ${esp32?.connected ? 'is-green' : 'is-red'}`} />ESP32</span><strong>{esp32?.connected ? 'Conectado' : 'Desconectado'}</strong></div>
-              <div><span><i className={`status-dot ${uno?.connected ? 'is-green' : 'is-muted'}`} />Arduino UNO</span><strong>{uno?.connected ? 'Conectado' : 'Sin señal'}</strong></div>
+              <div><span><i className={`status-dot ${sensorBridge?.connected ? 'is-green' : 'is-muted'}`} />ESP32 sensores</span><strong>{sensorBridge?.connected ? 'Conectado' : 'Sin señal'}</strong></div>
               <div><span><i className={`status-dot ${audioReady ? 'is-green' : 'is-muted'}`} />DFPlayer</span><strong>{audioReady ? 'Disponible' : 'Sin telemetría'}</strong></div>
               <div><span><i className={`status-dot ${sensorsReady ? 'is-green' : 'is-muted'}`} />Sensores</span><strong>{sensorsReady ? '28 / 28' : 'Esperando lectura'}</strong></div>
               <div><span><i className={`status-dot ${wifiRssi !== null ? 'is-green' : 'is-muted'}`} />WiFi</span><strong>{wifiRssi !== null ? `${wifiRssi} dBm` : 'Sin datos'}</strong></div>

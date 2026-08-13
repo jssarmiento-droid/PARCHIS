@@ -5,7 +5,7 @@
 1. Presentacion: React, TypeScript, Ant Design.
 2. Aplicacion: NestJS, REST API, Socket.IO.
 3. Datos: Prisma ORM y PostgreSQL.
-4. Dispositivo: ESP32 maestro, Arduino UNO esclavo I2C, DFPlayer Mini.
+4. Dispositivo: ESP32 principal, ESP32 de sensores por I2C, DFPlayer Mini.
 
 ## Flujo de datos
 
@@ -21,4 +21,4 @@
 - Frontend: operacion, visualizacion, gestion y reportes.
 - Backend: autenticacion, persistencia, calculos, API y WebSocket.
 - ESP32: turnos, dado, botones, DFPlayer, sensores 16-28, HTTP.
-- Arduino UNO: sensores 1-15 por I2C.
+- ESP32 sensores: sensores 1-15 por I2C.

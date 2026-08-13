@@ -41,6 +41,7 @@ enum AudioRelationType {
 
 enum DeviceKind {
   ESP32
+  ESP32_SENSORS
   ARDUINO_UNO
 }
 
@@ -209,7 +210,7 @@ model ButtonEvent {
   gameId      String?
   button      String
   pressed     Boolean
-  source      DeviceKind @default(ARDUINO_UNO)
+  source      DeviceKind @default(ESP32)
   createdAt   DateTime   @default(now())
 }
 

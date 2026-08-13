@@ -34,7 +34,7 @@ export function DashboardPage() {
   );
   const indicators = summary?.indicators;
   const esp32Connected = devices.some((device) => device.kind === 'ESP32' && device.connected);
-  const unoConnected = devices.some((device) => device.kind === 'ARDUINO_UNO' && device.connected);
+  const sensorBridgeConnected = devices.some((device) => device.kind === 'ESP32_SENSORS' && device.connected);
 
   return (
     <Space direction="vertical" size="large" className="full-width">
@@ -53,7 +53,7 @@ export function DashboardPage() {
         <div className="dashboard-status-items">
           <span><Badge status={connected ? 'success' : 'error'} />Servidor</span>
           <span><Badge status={esp32Connected ? 'success' : 'error'} />ESP32</span>
-          <span><Badge status={unoConnected ? 'success' : 'default'} />Arduino UNO</span>
+          <span><Badge status={sensorBridgeConnected ? 'success' : 'default'} />ESP32 sensores</span>
         </div>
         <div className="dashboard-quick-actions">
           <Button icon={<PlusOutlined />} onClick={() => navigate('/nueva-partida')}>Nueva partida</Button>

@@ -18,7 +18,7 @@ export function DiagnosticsPage() {
   const { connected, devices, technicalEvents, movements, activeGame } = useRealtime();
   const [simulationEnabled, setSimulationEnabled] = useState(false);
   const esp32 = devices.find((device) => device.kind === 'ESP32');
-  const uno = devices.find((device) => device.kind === 'ARDUINO_UNO');
+  const sensorBridge = devices.find((device) => device.kind === 'ESP32_SENSORS');
   const pendingEvents = Number(esp32?.health?.pendingEvents || 0);
   const droppedEvents = Number(esp32?.health?.droppedEvents || 0);
   const activePlayers = activeGame?.players || [];
@@ -99,7 +99,7 @@ export function DiagnosticsPage() {
       <Row gutter={[16, 16]}>
         <Col xs={24} md={6}><Card className="metric-card"><Statistic title="Servidor" value={connected ? 'Conectado' : 'Sin conexion'} prefix={<WifiOutlined />} /></Card></Col>
         <Col xs={24} md={6}><Card className="metric-card"><Statistic title="ESP32" value={esp32?.connected ? 'Conectado' : 'Desconectado'} prefix={<ApiOutlined />} /></Card></Col>
-        <Col xs={24} md={6}><Card className="metric-card"><Statistic title="Arduino UNO" value={uno?.connected ? 'Activo' : 'Sin senal'} prefix={<ThunderboltOutlined />} /></Card></Col>
+        <Col xs={24} md={6}><Card className="metric-card"><Statistic title="ESP32 sensores" value={sensorBridge?.connected ? 'Activo' : 'Sin senal'} prefix={<ThunderboltOutlined />} /></Card></Col>
         <Col xs={24} md={6}><Card className="metric-card"><Statistic title="Movimientos" value={movements.length} prefix={<BugOutlined />} /></Card></Col>
       </Row>
 

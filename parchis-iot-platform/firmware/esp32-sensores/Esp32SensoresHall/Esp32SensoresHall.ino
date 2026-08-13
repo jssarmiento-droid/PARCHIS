@@ -1,10 +1,14 @@
+#include <Arduino.h>
 #include <Wire.h>
 
 namespace {
 constexpr uint8_t I2C_ADDRESS = 0x08;
+constexpr int I2C_SDA_PIN = 21;
+constexpr int I2C_SCL_PIN = 22;
 constexpr uint8_t SENSOR_COUNT = 15;
+
 constexpr uint8_t SENSOR_PINS[SENSOR_COUNT] = {
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, A0, A1, A2
+  4, 5, 13, 14, 16, 17, 18, 19, 23, 25, 26, 27, 32, 33, 34
 };
 
 volatile uint16_t sensorMask = 0;
@@ -30,13 +34,18 @@ void sendSensorMask() {
 }  // namespace
 
 void setup() {
+  Serial.begin(115200);
+
   for (uint8_t index = 0; index < SENSOR_COUNT; index++) {
-    pinMode(SENSOR_PINS[index], INPUT_PULLUP);
+    const uint8_t pin = SENSOR_PINS[index];
+    pinMode(pin, pin >= 34 ? INPUT : INPUT_PULLUP);
   }
 
   updateSensorMask();
-  Wire.begin(I2C_ADDRESS);
+  Wire.begin(I2C_ADDRESS, I2C_SDA_PIN, I2C_SCL_PIN, 100000);
   Wire.onRequest(sendSensorMask);
+
+  Serial.println("ESP32 sensores Hall listo por I2C");
 }
 
 void loop() {

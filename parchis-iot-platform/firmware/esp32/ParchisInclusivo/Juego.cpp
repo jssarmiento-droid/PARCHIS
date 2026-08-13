@@ -19,7 +19,7 @@ void Juego::actualizar() {
   botones_.actualizar();
   sensores_.actualizar();
   audio_.actualizar();
-  if (requiereArduino() && !sensores_.arduinoConectado()) pausarPorArduino();
+  if (requierePuenteSensores() && !sensores_.puenteSensoresConectado()) pausarPorPuenteSensores();
   sincronizarConfiguracion();
   sincronizarPartida();
   enviarEstadoDispositivo();
@@ -43,7 +43,7 @@ void Juego::actualizar() {
     case EstadoJuego::PROCESANDO_CASILLA: procesarCasilla(); break;
     case EstadoJuego::ESPERANDO_RESPUESTA: esperarRespuesta(); break;
     case EstadoJuego::ESPERANDO_AUDIO: esperarAudio(); break;
-    case EstadoJuego::PAUSADO_DISPOSITIVO: esperarReconexionArduino(); break;
+    case EstadoJuego::PAUSADO_DISPOSITIVO: esperarReconexionPuenteSensores(); break;
     default: break;
   }
 }
@@ -88,7 +88,7 @@ void Juego::enviarEstadoDispositivo() {
   lastStatusAt_ = now;
   comunicacion_.enviarEstadoDispositivo(
     configuracion_.id,
-    sensores_.arduinoConectado(),
+    sensores_.puenteSensoresConectado(),
     audio_.disponible(),
     configuracionRemota_.volumenPorcentaje,
     configuracionRemota_.tiempoMovimientoSegundos);
@@ -110,8 +110,8 @@ void Juego::esperarPower() {
   if (!botonPresionado(TipoBoton::POWER)) return;
   audio_.reproducir(Audios::DIAGNOSTICO);
 
-  if (!sensores_.arduinoConectado()) {
-    audio_.reproducir(Audios::ERROR_ARDUINO);
+  if (!sensores_.puenteSensoresConectado()) {
+    audio_.reproducir(Audios::ERROR_PUENTE_SENSORES);
     return;
   }
   if (!audio_.disponible()) return;
@@ -359,8 +359,8 @@ void Juego::esperarAudio() {
   if (!audio_.ocupado()) cambiarTurno();
 }
 
-void Juego::esperarReconexionArduino() {
-  if (!sensores_.arduinoConectado()) return;
+void Juego::esperarReconexionPuenteSensores() {
+  if (!sensores_.puenteSensoresConectado()) return;
 
   if (estadoAntesDePausa_ == EstadoJuego::ESPERANDO_MOVIMIENTO
       && sensores_.mascara() == movementExpectedMask_) {
@@ -438,7 +438,7 @@ void Juego::enviarMovimientoInvalido(const char* reason) {
   comunicacion_.enviarEvento(payload);
 }
 
-bool Juego::requiereArduino() const {
+bool Juego::requierePuenteSensores() const {
   return estado_ == EstadoJuego::ESPERANDO_DADO
     || estado_ == EstadoJuego::ESPERANDO_MOVIMIENTO
     || estado_ == EstadoJuego::CORRIGIENDO_MOVIMIENTO
@@ -447,15 +447,15 @@ bool Juego::requiereArduino() const {
     || estado_ == EstadoJuego::ESPERANDO_AUDIO;
 }
 
-void Juego::pausarPorArduino() {
+void Juego::pausarPorPuenteSensores() {
   estadoAntesDePausa_ = estado_;
   pausedAt_ = millis();
   estado_ = EstadoJuego::PAUSADO_DISPOSITIVO;
-  audio_.reproducir(Audios::ERROR_ARDUINO);
+  audio_.reproducir(Audios::ERROR_PUENTE_SENSORES);
 
   DynamicJsonDocument payload(768);
   prepararEvento(payload, "device_paused");
-  payload["reason"] = "ARDUINO_I2C_DISCONNECTED";
+  payload["reason"] = "SENSOR_BRIDGE_I2C_DISCONNECTED";
   comunicacion_.enviarEvento(payload);
 }
 
