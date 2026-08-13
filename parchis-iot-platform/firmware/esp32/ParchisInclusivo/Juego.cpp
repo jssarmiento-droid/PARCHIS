@@ -3,6 +3,22 @@
 #include "Config.h"
 #include "Tablero.h"
 
+namespace {
+void imprimirMascaraCasillas(const char* etiqueta, uint32_t mascara) {
+  Serial.print(etiqueta);
+  Serial.print(": ");
+  bool hayCasillas = false;
+  for (uint8_t casilla = 1; casilla <= Config::TOTAL_TILES; casilla++) {
+    if ((mascara & (static_cast<uint32_t>(1) << (casilla - 1))) == 0) continue;
+    if (hayCasillas) Serial.print(", ");
+    Serial.print(casilla);
+    hayCasillas = true;
+  }
+  if (!hayCasillas) Serial.print("ninguna");
+  Serial.println();
+}
+}  // namespace
+
 void Juego::iniciar() {
   bootId_ = esp_random();
   lastConfigPollAt_ = millis() - Config::REMOTE_CONFIG_POLL_MS;
@@ -137,6 +153,8 @@ void Juego::validarInicio() {
   const uint32_t actualMask = sensores_.mascara();
   if (expectedMask != actualMask) {
     if (!initialPositionErrorReported_) {
+      imprimirMascaraCasillas("[INICIO] Casillas esperadas", expectedMask);
+      imprimirMascaraCasillas("[INICIO] Casillas detectadas", actualMask);
       audio_.reproducir(Audios::POSICIONES_INCORRECTAS);
       initialPositionErrorReported_ = true;
     }
