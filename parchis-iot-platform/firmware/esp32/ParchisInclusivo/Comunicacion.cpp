@@ -22,7 +22,10 @@ bool Comunicacion::conectado() const {
 }
 
 bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
-  if (!conectado()) return false;
+  if (!conectado()) {
+    Serial.println("[HTTP] No se puede consultar partida: WiFi desconectado");
+    return false;
+  }
 
   HTTPClient http;
   const String url = String(Config::API_BASE_URL) + "/device/games/active";
@@ -30,12 +33,17 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
   WiFiClientSecure secureClient;
   const bool secure = url.startsWith("https://");
   if (secure) secureClient.setInsecure();
-  if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) return false;
+  if (!(secure ? http.begin(secureClient, url) : http.begin(plainClient, url))) {
+    Serial.println("[HTTP] No se pudo iniciar consulta de partida activa");
+    return false;
+  }
   http.setTimeout(Config::HTTP_TIMEOUT_MS);
   agregarHeaders(http, false);
 
   const int statusCode = http.GET();
   if (statusCode != HTTP_CODE_OK) {
+    Serial.print("[HTTP] Partida activa no disponible. Codigo: ");
+    Serial.println(statusCode);
     http.end();
     return false;
   }
@@ -43,6 +51,8 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
   DynamicJsonDocument document(24576);
   const DeserializationError error = deserializeJson(document, http.getStream());
   if (error || document.as<JsonVariant>().isNull()) {
+    Serial.print("[HTTP] Error leyendo partida activa: ");
+    Serial.println(error.c_str());
     http.end();
     return false;
   }
@@ -52,6 +62,7 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
   next.publicId = String(document["publicId"] | "");
   next.status = String(document["status"] | "");
   if (next.id.length() == 0) {
+    Serial.println("[HTTP] No hay partida activa configurada");
     http.end();
     return false;
   }
@@ -87,6 +98,12 @@ bool Comunicacion::obtenerPartidaActiva(ConfiguracionPartida& configuracion) {
 
   http.end();
   configuracion = next;
+  Serial.print("[HTTP] Partida activa recibida: ");
+  Serial.print(next.publicId);
+  Serial.print(" | Jugadores: ");
+  Serial.print(next.totalJugadores);
+  Serial.print(" | Preguntas: ");
+  Serial.println(next.totalPreguntas);
   return next.totalJugadores >= 2;
 }
 
