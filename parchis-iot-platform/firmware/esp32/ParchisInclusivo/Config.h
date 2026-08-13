@@ -17,6 +17,10 @@ constexpr uint8_t MAX_QUESTIONS = 10;
 constexpr uint8_t TOTAL_TILES = 28;
 constexpr uint8_t ROUTE_LENGTH = 22;
 
+// Para las demostraciones permite iniciar con Confirmar sin validar las fichas
+// en las casillas iniciales. Los sensores siguen validando los movimientos.
+constexpr bool VALIDAR_FICHAS_INICIALES = false;
+
 constexpr uint8_t SENSOR_BRIDGE_I2C_ADDRESS = 0x08;
 constexpr int I2C_SDA_PIN = 21;
 constexpr int I2C_SCL_PIN = 22;

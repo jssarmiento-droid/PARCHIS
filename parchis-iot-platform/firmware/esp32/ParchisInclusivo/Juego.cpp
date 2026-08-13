@@ -145,6 +145,12 @@ void Juego::solicitarInicioFisico() {
   }
   if (!audio_.disponible()) return;
 
+  if (!Config::VALIDAR_FICHAS_INICIALES) {
+    Serial.println("[INICIO] Modo directo: se omite la validacion de fichas iniciales");
+    iniciarPartidaFisica();
+    return;
+  }
+
   estado_ = EstadoJuego::VALIDANDO_INICIO;
 }
 
