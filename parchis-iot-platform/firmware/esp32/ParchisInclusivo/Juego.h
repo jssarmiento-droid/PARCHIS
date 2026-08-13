@@ -55,6 +55,7 @@ class Juego {
   bool botonPresionado(TipoBoton boton);
   void esperarSesion();
   void esperarConfirmacionInicio();
+  void solicitarInicioFisico();
   void validarInicio();
   void iniciarPartidaFisica();
   void esperarDado();

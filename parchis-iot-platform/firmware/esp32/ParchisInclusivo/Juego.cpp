@@ -101,13 +101,26 @@ bool Juego::botonPresionado(TipoBoton boton) {
 }
 
 void Juego::esperarSesion() {
-  if (botonPresionado(TipoBoton::CONFIRMAR)) {
+  if (!botonPresionado(TipoBoton::CONFIRMAR)) return;
+
+  ConfiguracionPartida next;
+  if (!comunicacion_.obtenerPartidaActiva(next)) {
     audio_.reproducir(Audios::SIN_PARTIDA);
+    return;
   }
+
+  configuracion_ = next;
+  jugadores_.cargar(configuracion_);
+  initialPositionErrorReported_ = false;
+  solicitarInicioFisico();
 }
 
 void Juego::esperarConfirmacionInicio() {
   if (!botonPresionado(TipoBoton::CONFIRMAR)) return;
+  solicitarInicioFisico();
+}
+
+void Juego::solicitarInicioFisico() {
   audio_.reproducir(Audios::DIAGNOSTICO);
 
   if (!sensores_.puenteSensoresConectado()) {
