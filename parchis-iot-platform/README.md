@@ -55,10 +55,10 @@ FRONTEND_URL=http://localhost:5173,https://parchis-wine.vercel.app
 Frontend:
 
 ```env
-VITE_API_URL=http://localhost:4000/api/v1
+VITE_API_URL=http://localhost:4000
 ```
 
-Para produccion, `VITE_API_URL` debe apuntar al backend de Render.
+Para produccion, `VITE_API_URL` debe apuntar al backend de Render, por ejemplo `https://parchis-iot-backend.onrender.com`.
 
 ## Firmware
 
