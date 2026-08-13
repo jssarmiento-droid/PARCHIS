@@ -2,6 +2,7 @@
 #include "Config.h"
 
 bool Audio::iniciar() {
+  volume_ = min(Config::DFPLAYER_VOLUME, static_cast<uint8_t>(30));
   serial_.begin(9600, SERIAL_8N1, Config::DFPLAYER_RX_PIN, Config::DFPLAYER_TX_PIN);
   return intentarConexion();
 }

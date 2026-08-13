@@ -184,7 +184,7 @@ export function QuestionsPage() {
           <Form.Item
             label="Número de pista DFPlayer"
             name="audioTrack"
-            extra="Debe coincidir con un archivo entre 0201.mp3 y 0210.mp3 dentro de /mp3/."
+            extra="Debe coincidir con un archivo entre 0201.mp3 y 0210.mp3 dentro de la carpeta MP3."
             rules={[{ required: true, message: 'Ingresa la pista de la microSD' }]}
           >
             <InputNumber min={201} max={210} precision={0} className="full-width" />
